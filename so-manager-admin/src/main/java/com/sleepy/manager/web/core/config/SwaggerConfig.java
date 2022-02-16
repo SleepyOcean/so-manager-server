@@ -1,38 +1,33 @@
 package com.sleepy.manager.web.core.config;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.sleepy.manager.common.config.SoServerConfig;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import com.sleepy.manager.common.config.ApplicationConfig;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.models.auth.In;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.service.ApiInfo;
-import springfox.documentation.service.ApiKey;
-import springfox.documentation.service.AuthorizationScope;
-import springfox.documentation.service.Contact;
-import springfox.documentation.service.SecurityReference;
-import springfox.documentation.service.SecurityScheme;
+import springfox.documentation.service.*;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Swagger2的接口配置
- * 
+ *
  * @author
  */
 @Configuration
-public class SwaggerConfig
-{
+public class SwaggerConfig {
     /** 系统基础配置 */
     @Autowired
-    private ApplicationConfig applicationConfig;
+    private SoServerConfig soServerConfig;
 
     /** 是否开启swagger */
     @Value("${swagger.enabled}")
@@ -117,9 +112,9 @@ public class SwaggerConfig
                 // 描述
                 .description("描述：用于管理集团旗下公司的人员信息,具体包括XXX,XXX模块...")
                 // 作者信息
-                .contact(new Contact(applicationConfig.getName(), null, null))
+                .contact(new Contact(soServerConfig.getName(), null, null))
                 // 版本
-                .version("版本号:" + applicationConfig.getVersion())
+                .version("版本号:" + soServerConfig.getVersion())
                 .build();
     }
 }

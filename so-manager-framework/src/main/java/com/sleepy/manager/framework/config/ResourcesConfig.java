@@ -1,5 +1,8 @@
 package com.sleepy.manager.framework.config;
 
+import com.sleepy.manager.common.config.SoServerConfig;
+import com.sleepy.manager.common.constant.Constants;
+import com.sleepy.manager.framework.interceptor.RepeatSubmitInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,9 +12,6 @@ import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import com.sleepy.manager.common.config.ApplicationConfig;
-import com.sleepy.manager.common.constant.Constants;
-import com.sleepy.manager.framework.interceptor.RepeatSubmitInterceptor;
 
 /**
  * 通用配置
@@ -29,7 +29,7 @@ public class ResourcesConfig implements WebMvcConfigurer
     {
         /** 本地文件上传路径 */
         registry.addResourceHandler(Constants.RESOURCE_PREFIX + "/**")
-                .addResourceLocations("file:" + ApplicationConfig.getProfile() + "/");
+                .addResourceLocations("file:" + SoServerConfig.getProfile() + "/");
 
         /** swagger配置 */
         registry.addResourceHandler("/swagger-ui/**")

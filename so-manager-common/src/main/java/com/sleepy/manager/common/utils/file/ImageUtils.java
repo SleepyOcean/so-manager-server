@@ -1,17 +1,18 @@
 package com.sleepy.manager.common.utils.file;
 
+import com.sleepy.manager.common.config.SoServerConfig;
+import com.sleepy.manager.common.constant.Constants;
+import com.sleepy.manager.common.utils.StringUtils;
+import org.apache.poi.util.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Arrays;
-import org.apache.poi.util.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import com.sleepy.manager.common.config.ApplicationConfig;
-import com.sleepy.manager.common.constant.Constants;
-import com.sleepy.manager.common.utils.StringUtils;
 
 /**
  * 图片处理工具类
@@ -79,7 +80,7 @@ public class ImageUtils
             else
             {
                 // 本机地址
-                String localPath = ApplicationConfig.getProfile();
+                String localPath = SoServerConfig.getProfile();
                 String downloadPath = localPath + StringUtils.substringAfter(url, Constants.RESOURCE_PREFIX);
                 in = new FileInputStream(downloadPath);
             }

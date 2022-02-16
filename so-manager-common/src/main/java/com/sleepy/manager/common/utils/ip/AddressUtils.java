@@ -1,7 +1,7 @@
 package com.sleepy.manager.common.utils.ip;
 
 import com.alibaba.fastjson.JSONObject;
-import com.sleepy.manager.common.config.ApplicationConfig;
+import com.sleepy.manager.common.config.SoServerConfig;
 import com.sleepy.manager.common.constant.Constants;
 import com.sleepy.manager.common.utils.StringUtils;
 import com.sleepy.manager.common.utils.http.HttpUtils;
@@ -26,17 +26,13 @@ public class AddressUtils
     public static String getRealAddressByIP(String ip)
     {
         // 内网不查询
-        if (IpUtils.internalIp(ip))
-        {
+        if (IpUtils.internalIp(ip)) {
             return "内网IP";
         }
-        if (ApplicationConfig.isAddressEnabled())
-        {
-            try
-            {
+        if (SoServerConfig.isAddressEnabled()) {
+            try {
                 String rspStr = HttpUtils.sendGet(IP_URL, "ip=" + ip + "&json=true", Constants.GBK);
-                if (StringUtils.isEmpty(rspStr))
-                {
+                if (StringUtils.isEmpty(rspStr)) {
                     log.error("获取地理位置异常 {}", ip);
                     return UNKNOWN;
                 }

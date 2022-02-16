@@ -4,7 +4,7 @@ import com.sleepy.manager.common.annotation.Excel;
 import com.sleepy.manager.common.annotation.Excel.ColumnType;
 import com.sleepy.manager.common.annotation.Excel.Type;
 import com.sleepy.manager.common.annotation.Excels;
-import com.sleepy.manager.common.config.ApplicationConfig;
+import com.sleepy.manager.common.config.SoServerConfig;
 import com.sleepy.manager.common.core.domain.AjaxResult;
 import com.sleepy.manager.common.core.text.Convert;
 import com.sleepy.manager.common.exception.UtilException;
@@ -1056,7 +1056,7 @@ public class ExcelUtil<T>
      */
     public String getAbsoluteFile(String filename)
     {
-        String downloadPath = ApplicationConfig.getDownloadPath() + filename;
+        String downloadPath = SoServerConfig.getDownloadPath() + filename;
         File desc = new File(downloadPath);
         if (!desc.getParentFile().exists())
         {

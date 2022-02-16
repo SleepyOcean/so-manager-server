@@ -1,17 +1,7 @@
 package com.sleepy.manager.web.controller.system;
 
-import java.io.IOException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 import com.sleepy.manager.common.annotation.Log;
-import com.sleepy.manager.common.config.ApplicationConfig;
+import com.sleepy.manager.common.config.SoServerConfig;
 import com.sleepy.manager.common.constant.UserConstants;
 import com.sleepy.manager.common.core.controller.BaseController;
 import com.sleepy.manager.common.core.domain.AjaxResult;
@@ -23,6 +13,11 @@ import com.sleepy.manager.common.utils.StringUtils;
 import com.sleepy.manager.common.utils.file.FileUploadUtils;
 import com.sleepy.manager.framework.web.service.TokenService;
 import com.sleepy.manager.system.service.ISysUserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 /**
  * 个人信息 业务处理
@@ -126,7 +121,7 @@ public class SysProfileController extends BaseController
         if (!file.isEmpty())
         {
             LoginUser loginUser = getLoginUser();
-            String avatar = FileUploadUtils.upload(ApplicationConfig.getAvatarPath(), file);
+            String avatar = FileUploadUtils.upload(SoServerConfig.getAvatarPath(), file);
             if (userService.updateUserAvatar(loginUser.getUsername(), avatar))
             {
                 AjaxResult ajax = AjaxResult.success();

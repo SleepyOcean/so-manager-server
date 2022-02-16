@@ -1,6 +1,6 @@
 package com.sleepy.manager.common.utils.file;
 
-import com.sleepy.manager.common.config.ApplicationConfig;
+import com.sleepy.manager.common.config.SoServerConfig;
 import com.sleepy.manager.common.utils.DateUtils;
 import com.sleepy.manager.common.utils.StringUtils;
 import com.sleepy.manager.common.utils.uuid.IdUtils;
@@ -67,7 +67,7 @@ public class FileUtils
      */
     public static String writeImportBytes(byte[] data) throws IOException
     {
-        return writeBytes(data, ApplicationConfig.getImportPath());
+        return writeBytes(data, SoServerConfig.getImportPath());
     }
 
     /**

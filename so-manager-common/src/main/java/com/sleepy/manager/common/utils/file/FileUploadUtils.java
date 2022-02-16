@@ -1,6 +1,6 @@
 package com.sleepy.manager.common.utils.file;
 
-import com.sleepy.manager.common.config.ApplicationConfig;
+import com.sleepy.manager.common.config.SoServerConfig;
 import com.sleepy.manager.common.constant.Constants;
 import com.sleepy.manager.common.exception.file.FileNameLengthLimitExceededException;
 import com.sleepy.manager.common.exception.file.FileSizeLimitExceededException;
@@ -35,7 +35,7 @@ public class FileUploadUtils
     /**
      * 默认上传的地址
      */
-    private static String defaultBaseDir = ApplicationConfig.getProfile();
+    private static String defaultBaseDir = SoServerConfig.getProfile();
 
     public static void setDefaultBaseDir(String defaultBaseDir)
     {
@@ -141,7 +141,7 @@ public class FileUploadUtils
 
     public static final String getPathFileName(String uploadDir, String fileName) throws IOException
     {
-        int dirLastIndex = ApplicationConfig.getProfile().length() + 1;
+        int dirLastIndex = SoServerConfig.getProfile().length() + 1;
         String currentDir = StringUtils.substring(uploadDir, dirLastIndex);
         return Constants.RESOURCE_PREFIX + "/" + currentDir + "/" + fileName;
     }

@@ -5,13 +5,12 @@ import org.springframework.stereotype.Component;
 
 /**
  * 读取项目相关配置
- * 
+ *
  * @author
  */
 @Component
-@ConfigurationProperties(prefix = "application")
-public class ApplicationConfig
-{
+@ConfigurationProperties(prefix = "so-manager-server")
+public class SoServerConfig {
     /** 项目名称 */
     private String name;
 
@@ -80,7 +79,7 @@ public class ApplicationConfig
 
     public void setProfile(String profile)
     {
-        ApplicationConfig.profile = profile;
+        SoServerConfig.profile = profile;
     }
 
     public static boolean isAddressEnabled()
@@ -90,7 +89,7 @@ public class ApplicationConfig
 
     public void setAddressEnabled(boolean addressEnabled)
     {
-        ApplicationConfig.addressEnabled = addressEnabled;
+        SoServerConfig.addressEnabled = addressEnabled;
     }
 
     public static String getCaptchaType() {
@@ -98,7 +97,7 @@ public class ApplicationConfig
     }
 
     public void setCaptchaType(String captchaType) {
-        ApplicationConfig.captchaType = captchaType;
+        SoServerConfig.captchaType = captchaType;
     }
 
     /**

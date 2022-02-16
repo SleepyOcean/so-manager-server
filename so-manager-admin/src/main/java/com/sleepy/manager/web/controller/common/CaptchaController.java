@@ -1,7 +1,7 @@
 package com.sleepy.manager.web.controller.common;
 
 import com.google.code.kaptcha.Producer;
-import com.sleepy.manager.common.config.ApplicationConfig;
+import com.sleepy.manager.common.config.SoServerConfig;
 import com.sleepy.manager.common.constant.Constants;
 import com.sleepy.manager.common.core.domain.AjaxResult;
 import com.sleepy.manager.common.core.redis.RedisCache;
@@ -61,7 +61,7 @@ public class CaptchaController
         BufferedImage image = null;
 
         // 生成验证码
-        String captchaType = ApplicationConfig.getCaptchaType();
+        String captchaType = SoServerConfig.getCaptchaType();
         if ("math".equals(captchaType))
         {
             String capText = captchaProducerMath.createText();
