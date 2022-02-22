@@ -1,0 +1,449 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sleepy.manager.generation.mapper.ArticleMapper">
+
+    <resultMap type="Article" id="ArticleResult">
+        <result property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="cover" column="cover"/>
+        <result property="video" column="video"/>
+        <result property="source" column="source"/>
+        <result property="type" column="type"/>
+        <result property="classId" column="class_id"/>
+        <result property="tagId" column="tag_id"/>
+        <result property="viewed" column="viewed"/>
+        <result property="likeNum" column="like_num"/>
+        <result property="favoriteNum" column="favorite_num"/>
+        <result property="shortText" column="short_text"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="status" column="status"/>
+        <result property="orderNum" column="order_num"/>
+        <result property="sortId" column="sort_id"/>
+        <result property="isSticky" column="is_sticky"/>
+        <result property="isAutomatic" column="is_automatic"/>
+    </resultMap>
+
+    <sql id="selectArticleVo">
+        select id,
+               title,
+               content,
+               cover,
+               video,
+               source,
+               type,
+               class_id,
+               tag_id,
+               viewed,
+               like_num,
+               favorite_num,
+               short_text,
+               created_at,
+               updated_at,
+               created_by,
+               status
+        from article
+    </sql>
+
+    <select id="selectHomeNonHotspotArticle" parameterType="Article" resultMap="ArticleResult">
+        select distinct a.id                    as id,
+                        title,
+                        cover,
+                        video,
+                        source,
+                        type,
+                        class_id,
+                        tag_id,
+                        viewed,
+                        like_num,
+                        favorite_num,
+                        short_text,
+                        a.created_at            as created_at,
+                        a.updated_at            as updated_at,
+                        created_by,
+                        a.status                as status,
+                        coalesce(s.sort, 99999) as order_num,
+                        s.id                    as sort_id,
+                        s.is_sticky             as is_sticky
+        from article a
+                 left join (select id, article_id, category_id, is_sticky, sort
+                            from sort_rel
+                            WHERE (is_sticky = 0 or is_sticky is null)
+                              and category_id = 1) s on a.id = s.article_id
+        where a.id not in (select article_id from sort_rel where is_sticky = 1 and category_id = 1)
+          and a.status = 1
+        order by created_at DESC
+    </select>
+
+    <select id="selectArticleByCategoryOrTopicId" parameterType="Article" resultMap="ArticleResult">
+        select distinct a.id as id,
+        title,
+        cover,
+        video,
+        source,
+        type,
+        class_id,
+        tag_id,
+        viewed,
+        like_num,
+        favorite_num,
+        short_text,
+        a.created_at as created_at,
+        a.updated_at as updated_at,
+        created_by,
+        a.status as status,
+        coalesce(s.sort, 99999) as order_num,
+        s.id as sort_id,
+        s.is_sticky as is_sticky,
+        s.is_automatic as is_automatic
+        from article a
+        left join sort_rel s on a.id = s.article_id
+        <if test="topicId != null">
+            and s.topic_id = #{topicId}
+        </if>
+        <if test="categoryId != null">
+            and s.category_id = #{categoryId}
+        </if>
+        <where>
+            <!-- <if test="categoryId != null">
+                and s.category_id is not null
+            </if> -->
+            <if test="ids != null  and ids != ''">
+                and a.id in
+                <foreach item="id" collection="ids" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="excludeIds != null  and excludeIds != ''">
+                and a.id not in
+                <foreach item="id" collection="excludeIds" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="title != null  and title != ''">
+                and title like #{title}
+            </if>
+            <if test="isSticky != null">
+                <choose>
+                    <when test="isSticky == 0">
+                        and (s.is_sticky = #{isSticky} or s.is_sticky is null)
+                    </when>
+                    <otherwise>
+                        and s.is_sticky = #{isSticky}
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="createdAtStart != null and createdAtEnd != null ">
+                and a.created_at between #{createdAtStart} and #{createdAtEnd}
+            </if>
+            <choose>
+                <when test="tagIds != null and classIds != null">
+                    and (class_id in
+                    <foreach item="classId" collection="classIds" open="(" separator="," close=")">
+                        #{classId}
+                    </foreach>
+                    <foreach item="tagId" collection="tagIds">
+                        or find_in_set(#{tagId}, a.tag_id)
+                    </foreach>)
+                </when>
+                <otherwise>
+                    <if test="tagIds != null">
+                        and
+                        <foreach item="tagId" collection="tagIds" open="(" separator=" or " close=")">
+                            find_in_set(#{tagId}, a.tag_id)
+                        </foreach>
+                    </if>
+                    <if test="classIds != null">
+                        and class_id in
+                        <foreach item="classId" collection="classIds" open="(" separator="," close=")">
+                            #{classId}
+                        </foreach>
+                    </if>
+                </otherwise>
+            </choose>
+            and a.status = 1
+        </where>
+        order by order_num, created_at DESC
+    </select>
+
+    <select id="selectArticleListForRecommend" parameterType="Article" resultMap="ArticleResult">
+        select id,
+        viewed,
+        like_num,
+        created_at
+        from article
+        <where>
+            <choose>
+                <when test="tagIds != null and classIds != null">
+                    and (class_id in
+                    <foreach item="classId" collection="classIds" open="(" separator="," close=")">
+                        #{classId}
+                    </foreach>
+                    <foreach item="tagId" collection="tagIds">
+                        or find_in_set(#{tagId}, tag_id)
+                    </foreach>)
+                </when>
+                <otherwise>
+                    <if test="tagIds != null">
+                        and
+                        <foreach item="tagId" collection="tagIds" open="(" separator=" or " close=")">
+                            find_in_set(#{tagId}, tag_id)
+                        </foreach>
+                    </if>
+                    <if test="classIds != null">
+                        and class_id in
+                        <foreach item="classId" collection="classIds" open="(" separator="," close=")">
+                            #{classId}
+                        </foreach>
+                    </if>
+                </otherwise>
+            </choose>
+            and status = 1
+        </where>
+    </select>
+
+    <select id="selectArticleList" parameterType="Article" resultMap="ArticleResult">
+        <include refid="selectArticleVo"/>
+        <where>
+            <if test="ids != null  and ids != ''">
+                and id in
+                <foreach item="id" collection="ids" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="excludeIds != null  and excludeIds != ''">
+                and id not in
+                <foreach item="id" collection="excludeIds" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="title != null  and title != ''">
+                and title like #{title}
+            </if>
+            <if test="content != null  and content != ''">
+                and content = #{content}
+            </if>
+            <if test="cover != null  and cover != ''">
+                and cover = #{cover}
+            </if>
+            <if test="video != null  and video != ''">
+                and video = #{video}
+            </if>
+            <if test="source != null  and source != ''">
+                and source = #{source}
+            </if>
+            <if test="type != null ">
+                and type = #{type}
+            </if>
+            <if test="classId != null ">
+                and class_id = #{classId}
+            </if>
+            <if test="tagId != null  and tagId != ''">
+                and find_in_set(#{tagId}, tag_id)
+            </if>
+            <if test="viewed != null ">
+                and viewed = #{viewed}
+            </if>
+            <if test="likeNum != null ">
+                and like_num = #{likeNum}
+            </if>
+            <if test="favoriteNum != null ">
+                and favorite_num = #{favoriteNum}
+            </if>
+            <if test="shortText != null  and shortText != ''">
+                and short_text = #{shortText}
+            </if>
+            <if test="createdAt != null ">
+                and created_at = #{createdAt}
+            </if>
+            <if test="createdAtStart != null and createdAtEnd != null ">
+                and created_at between #{createdAtStart} and #{createdAtEnd}
+            </if>
+            <if test="updatedAt != null ">
+                and updated_at = #{updatedAt}
+            </if>
+            <if test="createdBy != null ">
+                and created_by = #{createdBy}
+            </if>
+            <if test="status != null ">
+                and status = #{status}
+            </if>
+        </where>
+        order by created_at DESC
+    </select>
+
+    <select id="selectArticleById" parameterType="Long"
+            resultMap="ArticleResult">
+        <include refid="selectArticleVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertArticle" parameterType="Article" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into article
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="title != null and title != ''">title,
+            </if>
+            <if test="content != null and content != ''">content,
+            </if>
+            <if test="cover != null">cover,
+            </if>
+            <if test="video != null">video,
+            </if>
+            <if test="source != null">source,
+            </if>
+            <if test="type != null">type,
+            </if>
+            <if test="classId != null">class_id,
+            </if>
+            <if test="tagId != null">tag_id,
+            </if>
+            <if test="viewed != null">viewed,
+            </if>
+            <if test="likeNum != null">like_num,
+            </if>
+            <if test="favoriteNum != null">favorite_num,
+            </if>
+            <if test="shortText != null">short_text,
+            </if>
+            <if test="createdAt != null">created_at,
+            </if>
+            <if test="updatedAt != null">updated_at,
+            </if>
+            <if test="createdBy != null">created_by,
+            </if>
+            <if test="status != null">status,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="title != null and title != ''">#{title},
+            </if>
+            <if test="content != null and content != ''">#{content},
+            </if>
+            <if test="cover != null">#{cover},
+            </if>
+            <if test="video != null">#{video},
+            </if>
+            <if test="source != null">#{source},
+            </if>
+            <if test="type != null">#{type},
+            </if>
+            <if test="classId != null">#{classId},
+            </if>
+            <if test="tagId != null">#{tagId},
+            </if>
+            <if test="viewed != null">#{viewed},
+            </if>
+            <if test="likeNum != null">#{likeNum},
+            </if>
+            <if test="favoriteNum != null">#{favoriteNum},
+            </if>
+            <if test="shortText != null">#{shortText},
+            </if>
+            <if test="createdAt != null">#{createdAt},
+            </if>
+            <if test="updatedAt != null">#{updatedAt},
+            </if>
+            <if test="createdBy != null">#{createdBy},
+            </if>
+            <if test="status != null">#{status},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateArticle" parameterType="Article">
+        update article
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="title != null and title != ''">title =
+                #{title},
+            </if>
+            <if test="content != null and content != ''">content =
+                #{content},
+            </if>
+            <if test="cover != null">cover =
+                #{cover},
+            </if>
+            <if test="video != null">video =
+                #{video},
+            </if>
+            <if test="source != null">source =
+                #{source},
+            </if>
+            <if test="type != null">type =
+                #{type},
+            </if>
+            <if test="classId != null">class_id =
+                #{classId},
+            </if>
+            <if test="classId == -1">class_id =
+                null,
+            </if>
+            <if test="tagId != null">tag_id =
+                #{tagId},
+            </if>
+            <if test="viewed != null">viewed =
+                #{viewed},
+            </if>
+            <if test="likeNum != null">like_num =
+                #{likeNum},
+            </if>
+            <if test="favoriteNum != null">favorite_num =
+                #{favoriteNum},
+            </if>
+            <if test="shortText != null">short_text =
+                #{shortText},
+            </if>
+            <if test="createdAt != null">created_at =
+                #{createdAt},
+            </if>
+            <if test="updatedAt != null">updated_at =
+                #{updatedAt},
+            </if>
+            <if test="createdBy != null">created_by =
+                #{createdBy},
+            </if>
+            <if test="status != null">status =
+                #{status},
+            </if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <update id="removeTagOrClassification" parameterType="Article">
+        update article
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="tagId != null">
+                tag_id = TRIM(BOTH ',' FROM REPLACE(CONCAT(',', tag_id, ','), CONCAT(',', #{tagId}, ','), ','))
+            </if>
+            <if test="classId != null">
+                class_id = null
+            </if>
+        </trim>
+        <where>
+            <if test="tagId != null">
+                FIND_IN_SET(#{tagId}, tag_id)
+            </if>
+            <if test="classId != null ">
+                class_id = #{classId}
+            </if>
+        </where>
+    </update>
+
+    <delete id="deleteArticleById" parameterType="Long">
+        delete
+        from article
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteArticleByIds" parameterType="String">
+        delete from article where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

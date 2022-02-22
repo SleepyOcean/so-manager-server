@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sleepy.manager.generation.mapper.ThirdPartUserMapper">
+
+    <resultMap type="ThirdPartUser" id="ThirdPartUserResult">
+        <result property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="openId" column="open_id"/>
+        <result property="type" column="type"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <sql id="selectThirdPartUserVo">
+        select id, user_id, open_id, type, created_at, updated_at
+        from third_part_user
+    </sql>
+
+    <select id="selectThirdPartUserList" parameterType="ThirdPartUser" resultMap="ThirdPartUserResult">
+        <include refid="selectThirdPartUserVo"/>
+        <where>
+            <if test="userId != null ">
+                and user_id = #{userId}
+            </if>
+            <if test="openId != null ">
+                and open_id = #{openId}
+            </if>
+            <if test="type != null ">
+                and type = #{type}
+            </if>
+            <if test="createdAt != null ">
+                and created_at = #{createdAt}
+            </if>
+            <if test="updatedAt != null ">
+                and updated_at = #{updatedAt}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectThirdPartUserById" parameterType="Long"
+            resultMap="ThirdPartUserResult">
+        <include refid="selectThirdPartUserVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertThirdPartUser" parameterType="ThirdPartUser" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into third_part_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,
+            </if>
+            <if test="openId != null">open_id,
+            </if>
+            <if test="type != null">type,
+            </if>
+            <if test="createdAt != null">created_at,
+            </if>
+            <if test="updatedAt != null">updated_at,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},
+            </if>
+            <if test="openId != null">#{openId},
+            </if>
+            <if test="type != null">#{type},
+            </if>
+            <if test="createdAt != null">#{createdAt},
+            </if>
+            <if test="updatedAt != null">#{updatedAt},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateThirdPartUser" parameterType="ThirdPartUser">
+        update third_part_user
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id =
+                #{userId},
+            </if>
+            <if test="openId != null">open_id =
+                #{openId},
+            </if>
+            <if test="type != null">type =
+                #{type},
+            </if>
+            <if test="createdAt != null">created_at =
+                #{createdAt},
+            </if>
+            <if test="updatedAt != null">updated_at =
+                #{updatedAt},
+            </if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteThirdPartUserById" parameterType="Long">
+        delete
+        from third_part_user
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteThirdPartUserByIds" parameterType="String">
+        delete from third_part_user where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

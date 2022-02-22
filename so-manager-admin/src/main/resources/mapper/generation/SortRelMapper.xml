@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sleepy.manager.generation.mapper.SortRelMapper">
+
+    <resultMap type="SortRel" id="SortRelResult">
+        <result property="id" column="id"/>
+        <result property="articleId" column="article_id"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="topicId" column="topic_id"/>
+        <result property="isSticky" column="is_sticky"/>
+        <result property="sort" column="sort"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="status" column="status"/>
+        <result property="isAutomatic" column="is_automatic"/>
+    </resultMap>
+
+    <sql id="selectSortRelVo">
+        select id,
+               article_id,
+               category_id,
+               topic_id,
+               is_sticky,
+               sort,
+               created_at,
+               updated_at,
+               status,
+               is_automatic
+        from sort_rel
+    </sql>
+
+    <select id="selectSortRelList" parameterType="SortRel" resultMap="SortRelResult">
+        <include refid="selectSortRelVo"/>
+        <where>
+            <if test="articleId != null ">
+                and article_id = #{articleId}
+            </if>
+            <if test="categoryId != null ">
+                and category_id = #{categoryId}
+            </if>
+            <if test="topicId != null ">
+                and topic_id = #{topicId}
+            </if>
+            <if test="isSticky != null ">
+                and is_sticky = #{isSticky}
+            </if>
+            <if test="sort != null ">
+                and sort = #{sort}
+            </if>
+            <if test="createdAt != null ">
+                and created_at = #{createdAt}
+            </if>
+            <if test="createdAtStart != null and createdAtEnd != null ">
+                and created_at between #{createdAtStart} and #{createdAtEnd}
+            </if>
+            <if test="updatedAt != null ">
+                and updated_at = #{updatedAt}
+            </if>
+            <if test="isAutomatic != null ">
+                and is_automatic = #{isAutomatic}
+            </if>
+            <if test="status != null ">
+                and status = #{status}
+            </if>
+            <if test="status == null ">
+                and status = 1
+            </if>
+            <if test="sortType != null">
+                order by sort DESC
+            </if>
+        </where>
+    </select>
+
+    <select id="selectSortRelById" parameterType="Long"
+            resultMap="SortRelResult">
+        <include refid="selectSortRelVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertSortRel" parameterType="SortRel" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into sort_rel
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="articleId != null">article_id,
+            </if>
+            <if test="categoryId != null">category_id,
+            </if>
+            <if test="topicId != null">topic_id,
+            </if>
+            <if test="isSticky != null">is_sticky,
+            </if>
+            <if test="sort != null">sort,
+            </if>
+            <if test="createdAt != null">created_at,
+            </if>
+            <if test="updatedAt != null">updated_at,
+            </if>
+            <if test="status != null">status,
+            </if>
+            <if test="isAutomatic != null">is_automatic,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="articleId != null">#{articleId},
+            </if>
+            <if test="categoryId != null">#{categoryId},
+            </if>
+            <if test="topicId != null">#{topicId},
+            </if>
+            <if test="isSticky != null">#{isSticky},
+            </if>
+            <if test="sort != null">#{sort},
+            </if>
+            <if test="createdAt != null">#{createdAt},
+            </if>
+            <if test="updatedAt != null">#{updatedAt},
+            </if>
+            <if test="status != null">#{status},
+            </if>
+            <if test="isAutomatic != null">#{isAutomatic},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateSortRel" parameterType="SortRel">
+        update sort_rel
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="articleId != null">article_id =
+                #{articleId},
+            </if>
+            <if test="categoryId != null">category_id =
+                #{categoryId},
+            </if>
+            <if test="topicId != null">topic_id =
+                #{topicId},
+            </if>
+            <if test="isSticky != null">is_sticky =
+                #{isSticky},
+            </if>
+            <if test="sort != null">sort =
+                #{sort},
+            </if>
+            <if test="createdAt != null">created_at =
+                #{createdAt},
+            </if>
+            <if test="updatedAt != null">updated_at =
+                #{updatedAt},
+            </if>
+            <if test="status != null">status =
+                #{status},
+            </if>
+            <if test="isAutomatic != null">is_automatic =
+                #{isAutomatic},
+            </if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSortRelById" parameterType="Long">
+        delete
+        from sort_rel
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteSortRelByIds" parameterType="String">
+        delete from sort_rel where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

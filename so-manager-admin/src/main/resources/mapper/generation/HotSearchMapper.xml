@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sleepy.manager.generation.mapper.HotSearchMapper">
+
+    <resultMap type="HotSearch" id="HotSearchResult">
+        <result property="id" column="id"/>
+        <result property="keyword" column="keyword"/>
+        <result property="sort" column="sort"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <sql id="selectHotSearchVo">
+        select id, keyword, sort, created_at, updated_at
+        from hot_search
+    </sql>
+
+    <select id="selectHotSearchList" parameterType="HotSearch" resultMap="HotSearchResult">
+        <include refid="selectHotSearchVo"/>
+        <where>
+            <if test="keyword != null  and keyword != ''">
+                and keyword like concat('%', #{keyword}, '%')
+            </if>
+            <if test="sort != null ">
+                and sort = #{sort}
+            </if>
+            <if test="createdAt != null ">
+                and created_at = #{createdAt}
+            </if>
+            <if test="updatedAt != null ">
+                and updated_at = #{updatedAt}
+            </if>
+        </where>
+        order by sort ASC
+    </select>
+
+    <select id="selectHotSearchById" parameterType="Long"
+            resultMap="HotSearchResult">
+        <include refid="selectHotSearchVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertHotSearch" parameterType="HotSearch" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into hot_search
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="keyword != null and keyword != ''">keyword,
+            </if>
+            <if test="sort != null">sort,
+            </if>
+            <if test="createdAt != null">created_at,
+            </if>
+            <if test="updatedAt != null">updated_at,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="keyword != null and keyword != ''">#{keyword},
+            </if>
+            <if test="sort != null">#{sort},
+            </if>
+            <if test="createdAt != null">#{createdAt},
+            </if>
+            <if test="updatedAt != null">#{updatedAt},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateHotSearch" parameterType="HotSearch">
+        update hot_search
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="keyword != null and keyword != ''">keyword =
+                #{keyword},
+            </if>
+            <if test="sort != null">sort =
+                #{sort},
+            </if>
+            <if test="createdAt != null">created_at =
+                #{createdAt},
+            </if>
+            <if test="updatedAt != null">updated_at =
+                #{updatedAt},
+            </if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteHotSearchById" parameterType="Long">
+        delete
+        from hot_search
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteHotSearchByIds" parameterType="String">
+        delete from hot_search where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>
