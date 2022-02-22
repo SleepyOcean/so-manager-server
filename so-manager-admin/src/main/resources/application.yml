@@ -39,13 +39,27 @@ logging:
     com.sleepy.manager: debug
     org.springframework: warn
 
+flyway:
+  datasource:
+    initializationFailTimeout: 0
+    idleTimeout: 60000
+    autoCommit: true
+    connectionTimeout: 15000
+    maxLifeTime: 180000
+    minimumIdle: 5
+    maximumPoolSize: 100
+    allowPoolSuspension: false
+    readOnly: false
+    registerMbeans: false
+    isolationLevel:
+
 # Spring配置
 spring:
   # 资源信息
   messages:
     # 国际化资源文件路径
     basename: i18n/messages
-  profiles: 
+  profiles:
     active: druid
   # 文件上传
   servlet:

@@ -1,10 +1,6 @@
 package com.sleepy.manager.common.core.domain.entity;
 
-import java.util.Date;
-import java.util.List;
-import javax.validation.constraints.*;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sleepy.manager.common.annotation.Excel;
@@ -13,6 +9,14 @@ import com.sleepy.manager.common.annotation.Excel.Type;
 import com.sleepy.manager.common.annotation.Excels;
 import com.sleepy.manager.common.core.domain.BaseEntity;
 import com.sleepy.manager.common.xss.Xss;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 用户对象 sys_user
@@ -23,35 +27,63 @@ public class SysUser extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
 
-    /** 用户ID */
+    /**
+     * 用户ID
+     */
     @Excel(name = "用户序号", cellType = ColumnType.NUMERIC, prompt = "用户编号")
     private Long userId;
 
-    /** 部门ID */
+    /**
+     * 部门ID
+     */
     @Excel(name = "部门编号", type = Type.IMPORT)
     private Long deptId;
 
-    /** 用户账号 */
+    /**
+     * 三方openid
+     */
+    @Excel(name = "三方编号")
+    private String openid;
+
+    /**
+     * 用户账号
+     */
     @Excel(name = "登录名称")
     private String userName;
 
-    /** 用户昵称 */
+    /**
+     * 用户昵称
+     */
     @Excel(name = "用户名称")
     private String nickName;
 
-    /** 用户邮箱 */
+    /**
+     * 用户邮箱
+     */
     @Excel(name = "用户邮箱")
     private String email;
 
-    /** 手机号码 */
+    /**
+     * 手机号码
+     */
     @Excel(name = "手机号码")
     private String phonenumber;
 
-    /** 用户性别 */
+    /**
+     * 用户性别
+     */
     @Excel(name = "用户性别", readConverterExp = "0=男,1=女,2=未知")
     private String sex;
 
-    /** 用户头像 */
+    /**
+     * 最后更新密码时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date pwdUpdateDate;
+
+    /**
+     * 用户头像
+     */
     private String avatar;
 
     /** 密码 */
@@ -299,44 +331,59 @@ public class SysUser extends BaseEntity
         return postIds;
     }
 
-    public void setPostIds(Long[] postIds)
-    {
+    public void setPostIds(Long[] postIds) {
         this.postIds = postIds;
     }
 
-    public Long getRoleId()
-    {
+    public Long getRoleId() {
         return roleId;
     }
 
-    public void setRoleId(Long roleId)
-    {
+    public void setRoleId(Long roleId) {
         this.roleId = roleId;
+    }
+
+    public String getOpenid() {
+        return openid;
+    }
+
+    public void setOpenid(String openid) {
+        this.openid = openid;
+    }
+
+    public Date getPwdUpdateDate() {
+        return pwdUpdateDate;
+    }
+
+    public void setPwdUpdateDate(Date pwdUpdateDate) {
+        this.pwdUpdateDate = pwdUpdateDate;
     }
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("userId", getUserId())
-            .append("deptId", getDeptId())
-            .append("userName", getUserName())
-            .append("nickName", getNickName())
+        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
+                .append("userId", getUserId())
+                .append("deptId", getDeptId())
+                .append("userName", getUserName())
+                .append("nickName", getNickName())
             .append("email", getEmail())
             .append("phonenumber", getPhonenumber())
             .append("sex", getSex())
-            .append("avatar", getAvatar())
-            .append("password", getPassword())
-            .append("salt", getSalt())
-            .append("status", getStatus())
-            .append("delFlag", getDelFlag())
-            .append("loginIp", getLoginIp())
-            .append("loginDate", getLoginDate())
-            .append("createBy", getCreateBy())
-            .append("createTime", getCreateTime())
-            .append("updateBy", getUpdateBy())
-            .append("updateTime", getUpdateTime())
-            .append("remark", getRemark())
-            .append("dept", getDept())
+                .append("avatar", getAvatar())
+                .append("password", getPassword())
+                .append("salt", getSalt())
+                .append("status", getStatus())
+                .append("delFlag", getDelFlag())
+                .append("loginIp", getLoginIp())
+                .append("loginDate", getLoginDate())
+                .append("createBy", getCreateBy())
+                .append("createTime", getCreateTime())
+                .append("updateBy", getUpdateBy())
+                .append("updateTime", getUpdateTime())
+                .append("remark", getRemark())
+                .append("dept", getDept())
+            .append("openid", getOpenid())
+            .append("pwdUpdateDate", getPwdUpdateDate())
             .toString();
     }
 }
