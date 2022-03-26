@@ -12,4 +12,7 @@ public class Constant {
 
     // 推荐文章数量定义
     public static final int RECOMMEND_SIZE = 10;
+
+
+    public static final String USER_ROUTES_KEY_PREFIX = "so.user.routes:";
 }

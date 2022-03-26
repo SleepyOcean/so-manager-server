@@ -1,7 +1,8 @@
 package com.sleepy.manager.blog.common;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.http.HttpStatus;
 
 /**
@@ -10,7 +11,8 @@ import org.springframework.http.HttpStatus;
  * @author gehoubao
  * @create 2021-10-05 8:50
  **/
-@Data
+@Setter
+@Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UnionResponse {
 
@@ -19,6 +21,9 @@ public class UnionResponse {
     private String message;
 
     private Object data;
+
+    private UnionResponse() {
+    }
 
     public static class Builder {
         private final UnionResponse response;

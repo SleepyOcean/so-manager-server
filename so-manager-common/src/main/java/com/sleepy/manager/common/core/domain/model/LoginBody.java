@@ -2,11 +2,15 @@ package com.sleepy.manager.common.core.domain.model;
 
 /**
  * 用户登录对象
- * 
+ *
  * @author
  */
-public class LoginBody
-{
+public class LoginBody {
+    /**
+     * 手机号
+     */
+    private String phone;
+
     /**
      * 用户名
      */
@@ -27,18 +31,23 @@ public class LoginBody
      */
     private String uuid;
 
-    public String getUsername()
-    {
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getUsername() {
         return username;
     }
 
-    public void setUsername(String username)
-    {
+    public void setUsername(String username) {
         this.username = username;
     }
 
-    public String getPassword()
-    {
+    public String getPassword() {
         return password;
     }
 

@@ -12,6 +12,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  **/
 @JsonIgnoreProperties({"params"})
 public class AssembledData extends JSONObject {
+    private AssembledData() {
+    }
 
     public static class Builder {
         private final AssembledData data;

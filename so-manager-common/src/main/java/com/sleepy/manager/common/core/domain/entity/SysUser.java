@@ -2,6 +2,7 @@ package com.sleepy.manager.common.core.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sleepy.manager.common.annotation.Excel;
 import com.sleepy.manager.common.annotation.Excel.ColumnType;
@@ -23,6 +24,7 @@ import java.util.List;
  * 
  * @author
  */
+@JsonIgnoreProperties({"password"})
 public class SysUser extends BaseEntity
 {
     private static final long serialVersionUID = 1L;

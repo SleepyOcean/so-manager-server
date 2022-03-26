@@ -1,18 +1,26 @@
 package com.sleepy.manager.system.service;
 
-import java.util.List;
 import com.sleepy.manager.common.core.domain.entity.SysUser;
+
+import java.util.List;
 
 /**
  * 用户 业务层
- * 
+ *
  * @author
  */
-public interface ISysUserService
-{
+public interface ISysUserService {
+    /**
+     * 通过手机号查询用户
+     *
+     * @param phone 用户ID
+     * @return 用户对象信息
+     */
+    SysUser selectUserByPhone(String phone);
+
     /**
      * 根据条件分页查询用户列表
-     * 
+     *
      * @param user 用户信息
      * @return 用户信息集合信息
      */
