@@ -25,4 +25,9 @@ public class MainManagerController {
         return mainManagerService.getUserRoutes(user);
     }
 
+    // bookmark 书签模块
+    @GetMapping("/analysis/url/base-info")
+    public UnionResponse getWebPageBaseInfo(@RequestParam("url") String url) {
+        return mainManagerService.getWebPageBaseInfo(url);
+    }
 }

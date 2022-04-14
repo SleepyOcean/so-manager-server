@@ -66,6 +66,7 @@ public class BookmarkController extends BaseController {
     @Log(title = "网页书签", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody Bookmark bookmark) {
+        bookmark.setCreatedBy(getLoginUser().getUserId());
         return toAjax(bookmarkService.insertBookmark(bookmark));
     }
 

@@ -7,4 +7,6 @@ public interface MainManagerService {
     UnionResponse getFundsStrategyReport(Long strategyId);
 
     UnionResponse getUserRoutes(SysUser user);
+
+    UnionResponse getWebPageBaseInfo(String url);
 }

@@ -34,7 +34,7 @@
     <select id="selectBookmarkList" parameterType="Bookmark" resultMap="BookmarkResult">
         <include refid="selectBookmarkVo"/>
         <where>
-            <if test="title != null  and title != ''">and title = #{title}</if>
+            <if test="title != null  and title != ''">and title like concat('%', #{title}, '%')</if>
             <if test="address != null  and address != ''">and address = #{address}</if>
             <if test="intro != null  and intro != ''">and intro = #{intro}</if>
             <if test="cover != null  and cover != ''">and cover = #{cover}</if>
