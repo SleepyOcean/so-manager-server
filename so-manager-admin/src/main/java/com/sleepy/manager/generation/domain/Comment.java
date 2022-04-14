@@ -2,7 +2,6 @@ package com.sleepy.manager.generation.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.sleepy.manager.common.annotation.Excel;
 import com.sleepy.manager.common.core.domain.BaseEntity;
 import com.sleepy.manager.common.utils.DateUtils;
@@ -24,7 +23,6 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @JsonIgnoreProperties({"params"})
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Comment extends BaseEntity {
     private static final long serialVersionUID = 1L;
     /**

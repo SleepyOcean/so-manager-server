@@ -1,6 +1,5 @@
 package com.sleepy.manager.generator.domain;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.sleepy.manager.common.constant.GenConstants;
 import com.sleepy.manager.common.core.domain.BaseEntity;
 import com.sleepy.manager.common.utils.StringUtils;
@@ -15,7 +14,6 @@ import java.util.List;
  * 
  * @author
  */
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class GenTable extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
