@@ -8,7 +8,7 @@ spring:
             master:
                 url: jdbc:mysql://prod.sleepyocean.cn:3306/so?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&allowPublicKeyRetrieval=true&serverTimezone=GMT%2B8
                 username: captain
-                password: tmp123
+                password: EI23hd!@
             # 从库数据源
             slave:
                 # 从数据源开关/默认关闭
