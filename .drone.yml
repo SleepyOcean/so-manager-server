@@ -19,4 +19,4 @@ steps:
       - mv ./so-manager-admin/target/so-manager-admin.jar ./
       - docker stop manager-server && docker rm manager-server && docker rmi manager-server
       - docker build -f ./so-manager-admin/Dockerfile -t manager-server .
-      - docker run -d -p 9060:9060 --privileged=true --restart=always --name manager-server -e JAVA_OPTS='-Xmx256m' manager-server
+      - docker run -d -p 9060:8080 --name manager-server manager-server

@@ -1,4 +1,4 @@
-FROM java:8
+FROM openjdk:8u322
 COPY so-manager-admin.jar /ocean/so-manager-server.jar
-EXPOSE 9060
-CMD ["java", "-jar", "/ocean/so-manager-server.jar"]
+EXPOSE 8080
+CMD ["java", "-jar", "-XX:MaxRAM=512m", "/ocean/so-manager-server.jar"]
