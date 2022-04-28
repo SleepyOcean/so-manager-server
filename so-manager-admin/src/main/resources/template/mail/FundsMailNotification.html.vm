@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="email code">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div style="max-width: 400px;margin: auto;user-select: none;">
+    <div style="background: #eacd76; text-align: center;padding: 10px;font-size:24px;font-weight: bold">
+        🗞 基金日报
+    </div>
+    <div style="background: #f0fcff;padding: 10px;">
+        #foreach ($fund in $fundsList)
+            <div style="margin-bottom: 5px;border-radius: 10px;overflow: hidden;">
+                <div style="text-align: center;background: #3de1ad;padding: 5px 0;font-weight: bold;color: #3d3b4f;">${fund.name}</div>
+                <div style="background: linear-gradient(to right, #DDEFBB, #FFEEEE);padding: 10px 5px;">
+                    <div style="color: #161823;height: 25px;font-size: 14px;line-height: 20px;padding: 0 10px"><span
+                            style="font-weight: bold;">总金额：</span> ¥${fund.totalAmount}</div>
+                    <div style="color: #161823;height: 25px;font-size: 14px;line-height: 20px;padding: 0 10px"><span
+                            style="font-weight: bold;">总收益：</span> ¥${fund.totalReturn}</div>
+                    <div style="color: #161823;height: 25px;font-size: 14px;line-height: 20px;padding: 0 10px"><span
+                            style="font-weight: bold;">总收益率：</span> ${fund.totalReturnRate}%
+                    </div>
+                    <div style="color: #161823;height: 25px;font-size: 14px;line-height: 20px;padding: 0 10px"><span
+                            style="font-weight: bold;">预计收益：</span> ¥${fund.todayReturn}</div>
+                    <div style="color: #161823;height: 25px;font-size: 14px;line-height: 20px;padding: 0 10px"><span
+                            style="font-weight: bold;">预计涨跌：</span> ${fund.todayChange}%
+                    </div>
+                    <div style="color: #161823;height: 25px;font-size: 14px;line-height: 20px;padding: 0 10px"><span
+                            style="font-weight: bold;">建议操作：</span> ${fund.recommendation}</div>
+                </div>
+            </div>
+        #end
+        <div style="margin: 0;display: flex;justify-content: center;align-items: center;color: #758a99;font-size: 12px;">
+            Copyright © 2022 SleepyOcean
+        </div>
+    </div>
+</div>
+</body>
+</html>
