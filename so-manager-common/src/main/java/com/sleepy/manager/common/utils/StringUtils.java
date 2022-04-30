@@ -1,14 +1,18 @@
 package com.sleepy.manager.common.utils;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import org.springframework.util.AntPathMatcher;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sleepy.manager.common.constant.Constants;
 import com.sleepy.manager.common.core.text.StrFormatter;
+import org.springframework.util.AntPathMatcher;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 字符串工具类
@@ -478,32 +482,28 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
             {
                 sb.append(Character.toUpperCase(c));
                 upperCase = false;
-            }
-            else
-            {
+            } else {
                 sb.append(c);
             }
         }
         return sb.toString();
     }
 
+    public static final Pattern CHINESE_PATTERN = Pattern.compile("[\u4e00-\u9fa5]");
+
     /**
      * 查找指定字符串是否匹配指定字符串列表中的任意一个字符串
-     * 
-     * @param str 指定字符串
+     *
+     * @param str  指定字符串
      * @param strs 需要检查的字符串数组
      * @return 是否匹配
      */
-    public static boolean matches(String str, List<String> strs)
-    {
-        if (isEmpty(str) || isEmpty(strs))
-        {
+    public static boolean matches(String str, List<String> strs) {
+        if (isEmpty(str) || isEmpty(strs)) {
             return false;
         }
-        for (String pattern : strs)
-        {
-            if (isMatch(pattern, str))
-            {
+        for (String pattern : strs) {
+            if (isMatch(pattern, str)) {
                 return true;
             }
         }
@@ -511,24 +511,178 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     }
 
     /**
-     * 判断url是否与规则配置: 
-     * ? 表示单个字符; 
-     * * 表示一层路径内的任意字符串，不可跨层级; 
+     * 判断url是否与规则配置:
+     * ? 表示单个字符;
+     * * 表示一层路径内的任意字符串，不可跨层级;
      * ** 表示任意层路径;
-     * 
+     *
      * @param pattern 匹配规则
-     * @param url 需要匹配的url
+     * @param url     需要匹配的url
      * @return
      */
-    public static boolean isMatch(String pattern, String url)
-    {
+    public static boolean isMatch(String pattern, String url) {
         AntPathMatcher matcher = new AntPathMatcher();
         return matcher.match(pattern, url);
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T cast(Object obj)
-    {
+    public static <T> T cast(Object obj) {
         return (T) obj;
+    }
+
+    /**
+     * 美化json字符串
+     *
+     * @param json
+     * @return 美化后的json字符串
+     * @throws IOException
+     */
+    public static String formatJson(String json) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        Object obj = null;
+        obj = mapper.readValue(json, Object.class);
+
+        return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
+    }
+
+    /**
+     * 格式化http请求URL
+     *
+     * @param url
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    public static String formatUrl(String url) throws UnsupportedEncodingException {
+        url = URLDecoder.decode(url, "utf-8").replaceAll("&amp;", "&");
+        String dest = url;
+        Pattern pat = CHINESE_PATTERN;
+        Matcher mat = pat.matcher(url);
+        while (mat.find()) {
+            String s = mat.group();
+            dest = dest.replaceAll(s, URLEncoder.encode(s, "utf-8"));
+        }
+        return dest;
+    }
+
+    /**
+     * 获取不带‘-’的随机UUID
+     *
+     * @param intervalMark
+     * @return
+     */
+    public static String getRandomUuid(String intervalMark) {
+        return UUID.randomUUID().toString().replaceAll("-", intervalMark);
+    }
+
+    /**
+     * 格式化文件大小，输入文件大小（byte为单位），输出带单位的文件大小，如 10240 => 10M
+     *
+     * @param size
+     * @return
+     */
+    public static String getFormatFileSize(double size) {
+        double kiloByte = size / 1024;
+        if (kiloByte < 1) {
+            return size + "Byte(s)";
+        }
+
+        double megaByte = kiloByte / 1024;
+        if (megaByte < 1) {
+            BigDecimal result1 = BigDecimal.valueOf(kiloByte);
+            return result1.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() + "KB";
+        }
+
+        double gigaByte = megaByte / 1024;
+        if (gigaByte < 1) {
+            BigDecimal result2 = BigDecimal.valueOf(megaByte);
+            return result2.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() + "MB";
+        }
+
+        double teraBytes = gigaByte / 1024;
+        if (teraBytes < 1) {
+            BigDecimal result3 = BigDecimal.valueOf(gigaByte);
+            return result3.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() + "GB";
+        }
+        BigDecimal result4 = new BigDecimal(teraBytes);
+        return result4.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() + "TB";
+    }
+
+    /**
+     * 从数字和字符组成的字符串中获取整数， 如 1024 bytes => 1024
+     *
+     * @param numStr
+     * @return
+     */
+    public static int getIntegerNumFromString(String numStr) {
+        String trimStr = numStr.replaceAll("[^0-9]", "").trim();
+        int value = Integer.parseInt(isEmpty(trimStr) ? "0" : trimStr);
+        return value;
+    }
+
+    /**
+     * 获取指定位数的随机数字字符串
+     *
+     * @param bit
+     * @return
+     */
+    public static String getRandomNumString(int bit) {
+        Random random = new Random();
+        StringBuilder s = new StringBuilder();
+        for (int i = 0; i < bit; i++) {
+            s.append(random.nextInt(9));
+        }
+        return s.toString();
+    }
+
+    /**
+     * 使用符号拼接多个字符串
+     *
+     * @param splitSymbol
+     * @param strings
+     * @return
+     */
+    public static String getSplitString(String splitSymbol, String... strings) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < strings.length; i++) {
+            sb.append(strings[i]);
+            sb.append(splitSymbol);
+        }
+        return sb.substring(0, sb.length() - 1);
+    }
+
+    public static String replaceIgnoreCase(String source, String reg, String replacement) {
+        Pattern p = Pattern.compile(reg, Pattern.CASE_INSENSITIVE);
+        Matcher m = p.matcher(source);
+        String r = m.replaceAll(replacement);
+        return r;
+    }
+
+    public static String getLikeSqlParams(String keyword) {
+        return "%" + keyword + "%";
+    }
+
+    /**
+     * 获取保留小数点后指定位数的字符串
+     *
+     * @param val
+     * @param scale
+     * @return
+     */
+    public static String getValFormat(String val, int scale) {
+        if (scale < 0) {
+            throw new IllegalArgumentException("The precision must be a positive integer or zero");
+        }
+        BigDecimal b = new BigDecimal(val);
+        BigDecimal one = new BigDecimal("1");
+        if (Double.parseDouble(val) > 0) {
+            //此处的scale表示的是，小数点之后的精度。
+            return b.divide(one, scale, BigDecimal.ROUND_DOWN).toString();
+        } else {
+            return b.divide(one, scale, BigDecimal.ROUND_UP).toString();
+        }
+    }
+
+    public static String getOrDefault(String str, String defaultStr) {
+        return isEmpty(str) ? defaultStr : str;
     }
 }

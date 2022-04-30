@@ -4,6 +4,7 @@ import com.sleepy.manager.common.config.SoServerConfig;
 import com.sleepy.manager.common.utils.DateUtils;
 import com.sleepy.manager.common.utils.StringUtils;
 import com.sleepy.manager.common.utils.uuid.IdUtils;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -12,6 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * 文件处理工具类
@@ -108,8 +111,7 @@ public class FileUtils
         boolean flag = false;
         File file = new File(filePath);
         // 路径为文件且不为空则进行删除
-        if (file.isFile() && file.exists())
-        {
+        if (file.isFile() && file.exists()) {
             file.delete();
             flag = true;
         }
@@ -117,13 +119,32 @@ public class FileUtils
     }
 
     /**
+     * 递归删除文件
+     *
+     * @param file
+     * @return
+     */
+    public static boolean deleteFileRecursion(File file) {
+        if (!file.exists()) {
+            return false;
+        }
+
+        if (file.isDirectory()) {
+            File[] files = file.listFiles();
+            for (File f : files) {
+                deleteFileRecursion(f);
+            }
+        }
+        return file.delete();
+    }
+
+    /**
      * 文件名称验证
-     * 
+     *
      * @param filename 文件名称
      * @return true 正常 false 非法
      */
-    public static boolean isValidFilename(String filename)
-    {
+    public static boolean isValidFilename(String filename) {
         return filename.matches(FILENAME_PATTERN);
     }
 
@@ -221,30 +242,42 @@ public class FileUtils
 
     /**
      * 获取图像后缀
-     * 
+     *
      * @param photoByte 图像数据
      * @return 后缀名
      */
-    public static String getFileExtendName(byte[] photoByte)
-    {
+    public static String getFileExtendName(byte[] photoByte) {
         String strFileExtendName = "jpg";
         if ((photoByte[0] == 71) && (photoByte[1] == 73) && (photoByte[2] == 70) && (photoByte[3] == 56)
-                && ((photoByte[4] == 55) || (photoByte[4] == 57)) && (photoByte[5] == 97))
-        {
+                && ((photoByte[4] == 55) || (photoByte[4] == 57)) && (photoByte[5] == 97)) {
             strFileExtendName = "gif";
-        }
-        else if ((photoByte[6] == 74) && (photoByte[7] == 70) && (photoByte[8] == 73) && (photoByte[9] == 70))
-        {
+        } else if ((photoByte[6] == 74) && (photoByte[7] == 70) && (photoByte[8] == 73) && (photoByte[9] == 70)) {
             strFileExtendName = "jpg";
-        }
-        else if ((photoByte[0] == 66) && (photoByte[1] == 77))
-        {
+        } else if ((photoByte[0] == 66) && (photoByte[1] == 77)) {
             strFileExtendName = "bmp";
-        }
-        else if ((photoByte[1] == 80) && (photoByte[2] == 78) && (photoByte[3] == 71))
-        {
+        } else if ((photoByte[1] == 80) && (photoByte[2] == 78) && (photoByte[3] == 71)) {
             strFileExtendName = "png";
         }
         return strFileExtendName;
+    }
+
+    /**
+     * 获取文件MD5值
+     *
+     * @param file
+     * @return
+     * @throws IOException
+     * @throws NoSuchAlgorithmException
+     */
+    public static String getMD5(File file) throws IOException, NoSuchAlgorithmException {
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+            MessageDigest MD5 = MessageDigest.getInstance("MD5");
+            byte[] buffer = new byte[8192];
+            int length;
+            while ((length = fileInputStream.read(buffer)) != -1) {
+                MD5.update(buffer, 0, length);
+            }
+            return new String(Hex.encodeHex(MD5.digest()));
+        }
     }
 }
