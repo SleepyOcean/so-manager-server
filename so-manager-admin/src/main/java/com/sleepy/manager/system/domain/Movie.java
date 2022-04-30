@@ -22,57 +22,39 @@ public class Movie extends BaseEntity {
      */
     private Long id;
 
-    /**
-     * imdb ID
-     */
+    /** imdb ID */
     @Excel(name = "imdb ID")
     private String imdbid;
 
-    /**
-     * 标题
-     */
+    /** 标题 */
     @Excel(name = "标题")
     private String title;
 
-    /**
-     * 上映年份
-     */
+    /** 上映年份 */
     @Excel(name = "上映年份")
     private Long year;
 
-    /**
-     * 视频地址
-     */
+    /** 视频地址 */
     @Excel(name = "视频地址")
     private String address;
 
-    /**
-     * 介绍
-     */
+    /** 介绍 */
     @Excel(name = "介绍")
     private String intro;
 
-    /**
-     * 封面
-     */
+    /** 封面 */
     @Excel(name = "封面")
     private String cover;
 
-    /**
-     * 横板封面
-     */
+    /** 横板封面 */
     @Excel(name = "横板封面")
     private String headCover;
 
-    /**
-     * 详情数据集
-     */
+    /** 详情数据集 */
     @Excel(name = "详情数据集")
     private String detail;
 
-    /**
-     * 创建时间
-     */
+    /** 创建时间 */
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Excel(name = "创建时间", width = 30, dateFormat = "yyyy-MM-dd")
     private Date createdAt;
@@ -83,12 +65,6 @@ public class Movie extends BaseEntity {
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Excel(name = "更新时间", width = 30, dateFormat = "yyyy-MM-dd")
     private Date updatedAt;
-
-    /**
-     * 创建人
-     */
-    @Excel(name = "创建人")
-    private Long createdBy;
 
     /**
      * 状态, 0-Deleted, 1-Normal
@@ -184,14 +160,6 @@ public class Movie extends BaseEntity {
         this.updatedAt = updatedAt;
     }
 
-    public Long getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(Long createdBy) {
-        this.createdBy = createdBy;
-    }
-
     public Long getStatus() {
         return status;
     }
@@ -214,7 +182,6 @@ public class Movie extends BaseEntity {
                 .append("detail", getDetail())
                 .append("createdAt", getCreatedAt())
                 .append("updatedAt", getUpdatedAt())
-                .append("createdBy", getCreatedBy())
                 .append("status", getStatus())
                 .toString();
     }

@@ -58,4 +58,20 @@ public interface IMovieService {
      * @return 结果
      */
     int deleteMovieById(Long id);
+
+    /**
+     * 查询电影库通过IMDB ID
+     *
+     * @param imdbid
+     * @return
+     */
+    Movie selectMovieByImdbId(String imdbid);
+
+    /**
+     * 查询电影库通过title
+     *
+     * @param title
+     * @return
+     */
+    Movie selectMovieByTitle(String title);
 }

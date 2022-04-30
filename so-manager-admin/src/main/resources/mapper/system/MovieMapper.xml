@@ -16,7 +16,6 @@
         <result property="detail" column="detail"/>
         <result property="createdAt" column="created_at"/>
         <result property="updatedAt" column="updated_at"/>
-        <result property="createdBy" column="created_by"/>
         <result property="status" column="status"/>
     </resultMap>
 
@@ -32,7 +31,6 @@
                detail,
                created_at,
                updated_at,
-               created_by,
                status
         from movie
     </sql>
@@ -50,7 +48,6 @@
             <if test="detail != null  and detail != ''">and detail = #{detail}</if>
             <if test="createdAt != null ">and created_at = #{createdAt}</if>
             <if test="updatedAt != null ">and updated_at = #{updatedAt}</if>
-            <if test="createdBy != null ">and created_by = #{createdBy}</if>
             <if test="status != null ">and status = #{status}</if>
         </where>
     </select>
@@ -60,34 +57,42 @@
         where id = #{id}
     </select>
 
+    <select id="selectMovieByImdbId" parameterType="String" resultMap="MovieResult">
+        <include refid="selectMovieVo"/>
+        where imdbid = #{imdbid}
+    </select>
+
+    <select id="selectMovieByTitle" parameterType="String" resultMap="MovieResult">
+        <include refid="selectMovieVo"/>
+        where title = #{title}
+    </select>
+
     <insert id="insertMovie" parameterType="Movie" useGeneratedKeys="true" keyProperty="id">
         insert into movie
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="imdbid != null and imdbid != ''">imdbId,</if>
+            <if test="imdbid != null">imdbId,</if>
             <if test="title != null and title != ''">title,</if>
             <if test="year != null">year,</if>
             <if test="address != null and address != ''">address,</if>
-            <if test="intro != null and intro != ''">intro,</if>
+            <if test="intro != null">intro,</if>
             <if test="cover != null and cover != ''">cover,</if>
-            <if test="headCover != null and headCover != ''">head_cover,</if>
+            <if test="headCover != null">head_cover,</if>
             <if test="detail != null and detail != ''">detail,</if>
             <if test="createdAt != null">created_at,</if>
             <if test="updatedAt != null">updated_at,</if>
-            <if test="createdBy != null">created_by,</if>
             <if test="status != null">status,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="imdbid != null and imdbid != ''">#{imdbid},</if>
+            <if test="imdbid != null">#{imdbid},</if>
             <if test="title != null and title != ''">#{title},</if>
             <if test="year != null">#{year},</if>
             <if test="address != null and address != ''">#{address},</if>
-            <if test="intro != null and intro != ''">#{intro},</if>
+            <if test="intro != null">#{intro},</if>
             <if test="cover != null and cover != ''">#{cover},</if>
-            <if test="headCover != null and headCover != ''">#{headCover},</if>
+            <if test="headCover != null">#{headCover},</if>
             <if test="detail != null and detail != ''">#{detail},</if>
             <if test="createdAt != null">#{createdAt},</if>
             <if test="updatedAt != null">#{updatedAt},</if>
-            <if test="createdBy != null">#{createdBy},</if>
             <if test="status != null">#{status},</if>
         </trim>
     </insert>
@@ -95,17 +100,16 @@
     <update id="updateMovie" parameterType="Movie">
         update movie
         <trim prefix="SET" suffixOverrides=",">
-            <if test="imdbid != null and imdbid != ''">imdbId = #{imdbid},</if>
+            <if test="imdbid != null">imdbId = #{imdbid},</if>
             <if test="title != null and title != ''">title = #{title},</if>
             <if test="year != null">year = #{year},</if>
             <if test="address != null and address != ''">address = #{address},</if>
-            <if test="intro != null and intro != ''">intro = #{intro},</if>
+            <if test="intro != null">intro = #{intro},</if>
             <if test="cover != null and cover != ''">cover = #{cover},</if>
-            <if test="headCover != null and headCover != ''">head_cover = #{headCover},</if>
+            <if test="headCover != null">head_cover = #{headCover},</if>
             <if test="detail != null and detail != ''">detail = #{detail},</if>
             <if test="createdAt != null">created_at = #{createdAt},</if>
             <if test="updatedAt != null">updated_at = #{updatedAt},</if>
-            <if test="createdBy != null">created_by = #{createdBy},</if>
             <if test="status != null">status = #{status},</if>
         </trim>
         where id = #{id}

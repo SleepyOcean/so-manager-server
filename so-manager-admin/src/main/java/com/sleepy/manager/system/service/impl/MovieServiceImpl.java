@@ -84,4 +84,14 @@ public class MovieServiceImpl implements IMovieService {
     public int deleteMovieById(Long id) {
         return movieMapper.deleteMovieById(id);
     }
+
+    @Override
+    public Movie selectMovieByImdbId(String imdbid) {
+        return movieMapper.selectMovieByImdbId(imdbid);
+    }
+
+    @Override
+    public Movie selectMovieByTitle(String title) {
+        return movieMapper.selectMovieByTitle(title);
+    }
 }
