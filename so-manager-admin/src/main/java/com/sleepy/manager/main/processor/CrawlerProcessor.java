@@ -29,8 +29,6 @@ public class CrawlerProcessor {
             Pattern.compile("((?<=href=[\"'])[^\n\r\"']+?(?=[\"']))\"sizes=[\"'](192x192|96x96|32x32|16x16)[\"']"),
             Pattern.compile("rel=[\"']icon[\"'][^\r\n>]+?((?<=href=[\"']).+?(?=[\"']))")
     };
-    //设置解析网页head标签结尾的正则表达式
-    private static final Pattern HEAD_END_PATTERN = Pattern.compile("</head>");
 
     public AssembledData analysisWebPageBaseInfo(String urlStr) {
         try {
@@ -41,7 +39,7 @@ public class CrawlerProcessor {
             webClient.setAjaxController(new NicelyResynchronizingAjaxController());
             webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
             webClient.getOptions().setThrowExceptionOnScriptError(false);
-            webClient.waitForBackgroundJavaScript(5000);
+            webClient.waitForBackgroundJavaScript(1000);
 
             HtmlPage htmlpage = webClient.getPage(urlStr);
 
