@@ -9,4 +9,6 @@ public interface MainManagerService {
     UnionResponse getUserRoutes(SysUser user);
 
     UnionResponse getWebPageBaseInfo(String url);
+
+    UnionResponse syncNasMovieBase();
 }

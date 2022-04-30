@@ -4,18 +4,24 @@ import com.alibaba.fastjson.JSON;
 import com.sleepy.manager.blog.common.AssembledData;
 import com.sleepy.manager.blog.common.UnionResponse;
 import com.sleepy.manager.common.core.domain.entity.SysUser;
+import com.sleepy.manager.common.utils.StringUtils;
 import com.sleepy.manager.generator.util.VelocityInitializer;
+import com.sleepy.manager.main.helper.MovieHelper;
 import com.sleepy.manager.main.processor.CrawlerProcessor;
 import com.sleepy.manager.main.service.MainManagerService;
+import com.sleepy.manager.system.domain.Movie;
 import com.sleepy.manager.system.service.ISysConfigService;
+import com.sleepy.manager.system.service.impl.MovieServiceImpl;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
+import org.dom4j.DocumentException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
@@ -35,16 +41,19 @@ public class MainManagerServiceImpl implements MainManagerService {
     @Autowired
     EmailNotificationServiceImpl emailNotificationService;
 
+    @Autowired
+    MovieServiceImpl movieService;
 
     @Override
     public UnionResponse getFundsStrategyReport(Long strategyId) {
+        // todo 对接线上基金数据
         List<AssembledData> fundsList = Arrays.asList(
                 new AssembledData.Builder()
-                        .put("name" , "富国基金")
-                        .put("totalAmount" , "21021.21")
-                        .put("totalReturn" , "1021.21")
-                        .put("totalReturnRate" , "5.1")
-                        .put("todayChange" , "2.5")
+                        .put("name", "富国基金")
+                        .put("totalAmount", "21021.21")
+                        .put("totalReturn", "1021.21")
+                        .put("totalReturnRate", "5.1")
+                        .put("todayChange", "2.5")
                         .put("todayReturn" , "323")
                         .put("recommendation" , "卧倒不动，继续观望")
                         .build(),
@@ -116,6 +125,34 @@ public class MainManagerServiceImpl implements MainManagerService {
                 .data(data)
                 .message(data.get("error").toString())
                 .build();
+    }
+
+    @Override
+    public UnionResponse syncNasMovieBase() {
+        try {
+            List<Movie> movieList = MovieHelper.loadNasMovie();
+            for (Movie movie : movieList) {
+                Movie res = null;
+                // 判断电影是否已存在，存在则更新，不存在则插入
+                if (StringUtils.isNotEmpty(movie.getImdbid())) {
+                    res = movieService.selectMovieByImdbId(movie.getImdbid());
+                } else {
+                    res = movieService.selectMovieByTitle(movie.getTitle());
+                }
+
+                if (ObjectUtils.isEmpty(res)) {
+                    movieService.insertMovie(movie);
+                } else {
+                    movie.setId(res.getId());
+                    movieService.updateMovie(movie);
+                }
+            }
+        } catch (DocumentException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new UnionResponse.Builder().build();
     }
 
     private String constructUserRoutesKey(Long userId) {

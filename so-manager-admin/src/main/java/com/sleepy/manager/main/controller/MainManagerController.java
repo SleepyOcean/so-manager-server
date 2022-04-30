@@ -30,4 +30,10 @@ public class MainManagerController {
     public UnionResponse getWebPageBaseInfo(@RequestParam("url") String url) {
         return mainManagerService.getWebPageBaseInfo(url);
     }
+
+    // movie 电影库模块
+    @GetMapping("/movie/sync-nas-movie-base")
+    public UnionResponse syncNasMovieBase() {
+        return mainManagerService.syncNasMovieBase();
+    }
 }
