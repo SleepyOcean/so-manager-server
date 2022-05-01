@@ -6,14 +6,19 @@ import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.sleepy.manager.blog.common.AssembledData;
+import com.sleepy.manager.common.exception.ServiceException;
+import com.sleepy.manager.common.utils.ExceptionUtil;
+import com.sleepy.manager.common.utils.StringUtils;
 import com.sleepy.manager.main.helper.MovieHelper;
 import com.sleepy.manager.main.service.SubtitleCrawlService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-import java.io.*;
-import java.net.MalformedURLException;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,6 +28,7 @@ import java.util.stream.Collectors;
  * @description TODO
  * @date 2022/4/20 18:46
  */
+@Slf4j
 public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
 
     public static final String ZIMUKU_HOST = "zmk.pw";
@@ -73,14 +79,12 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
                     .put("subtitles", detailList)
                     .put("bestMatch", bestMatch)
                     .build();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            String msg = StringUtils.format("downloadSubtitle failed! because Exception={}, {} [ttID={}]",
+                    e.getClass().getName(), ExceptionUtil.getRootErrorMessage(e), ttID);
+            log.error(msg);
+            throw new ServiceException(msg);
         }
-        return new AssembledData.Builder().build();
     }
 
     @Override
@@ -114,15 +118,11 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
                     IOUtils.readFully(contentAsStream, (int) page.getWebResponse().getContentLength()),
                     new FileOutputStream(downloadPath));
             return new AssembledData.Builder().put("downloadedPath", downloadPath).build();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            String msg = StringUtils.format("downloadSubtitle failed! because Exception={}, {} [movieName={}, downloadPageRoute={}]",
+                    e.getClass().getName(), ExceptionUtil.getRootErrorMessage(e), movieName, downloadPageRoute);
+            log.error(msg);
+            throw new ServiceException(msg);
         }
-        return new AssembledData.Builder().build();
     }
 }

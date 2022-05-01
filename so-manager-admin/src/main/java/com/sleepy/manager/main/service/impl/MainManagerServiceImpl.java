@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.sleepy.manager.blog.common.AssembledData;
 import com.sleepy.manager.blog.common.UnionResponse;
 import com.sleepy.manager.common.core.domain.entity.SysUser;
+import com.sleepy.manager.common.exception.ServiceException;
+import com.sleepy.manager.common.utils.ExceptionUtil;
 import com.sleepy.manager.common.utils.StringUtils;
 import com.sleepy.manager.generator.util.VelocityInitializer;
 import com.sleepy.manager.main.helper.MovieHelper;
@@ -12,16 +14,15 @@ import com.sleepy.manager.main.service.MainManagerService;
 import com.sleepy.manager.system.domain.Movie;
 import com.sleepy.manager.system.service.ISysConfigService;
 import com.sleepy.manager.system.service.impl.MovieServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
-import org.dom4j.DocumentException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
-import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
@@ -30,6 +31,7 @@ import static com.sleepy.manager.blog.common.Constant.USER_ROUTES_KEY_PREFIX;
 
 
 @Service
+@Slf4j
 public class MainManagerServiceImpl implements MainManagerService {
 
     @Autowired
@@ -147,12 +149,12 @@ public class MainManagerServiceImpl implements MainManagerService {
                     movieService.updateMovie(movie);
                 }
             }
-        } catch (DocumentException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+            return new UnionResponse.Builder().build();
+        } catch (Exception e) {
+            String msg = StringUtils.format("syncNasMovieBase failed! because Exception={}, {}", e.getClass().getName(), ExceptionUtil.getRootErrorMessage(e));
+            log.error(msg);
+            throw new ServiceException(msg);
         }
-        return new UnionResponse.Builder().build();
     }
 
     private String constructUserRoutesKey(Long userId) {
