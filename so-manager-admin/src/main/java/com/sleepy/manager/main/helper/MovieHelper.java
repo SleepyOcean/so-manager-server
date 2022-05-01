@@ -25,9 +25,8 @@ import java.util.stream.Collectors;
  */
 public class MovieHelper {
 
-    private final static String PATH = "F://Harry Potter and the Deathly Hallows - Part 1.2010.nfo";
     private final static Set<String> VIDEO_FORMAT = Sets.newHashSet("mkv", "mp4", "m2ts", "avi", "MKV", "m4v", "wmv", "rmvb", "flv", "mpg");
-    private final static List<String> NAS_MOVIE_PATH = Arrays.asList("\\\\DS218plus\\0-Cinema0\\Cinema1-Extra", "\\\\DS218plus\\0-Cinema1");
+    private final static List<String> NAS_MOVIE_PATH = Arrays.asList("/0-Cinema0/Cinema1-Extra", "/0-Cinema1");
 
     public static AssembledData readNfo(String path) throws IOException, DocumentException {
         String movieXmlInfo = FileUtils.readFileToString(new File(path), Charset.defaultCharset());
