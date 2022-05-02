@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sleepy.manager.system.mapper.GalleryMapper">
+
+    <resultMap type="Gallery" id="GalleryResult">
+        <result property="id" column="id"/>
+        <result property="size" column="size"/>
+        <result property="format" column="format"/>
+        <result property="path" column="path"/>
+        <result property="resolution" column="resolution"/>
+        <result property="title" column="title"/>
+        <result property="description" column="description"/>
+        <result property="tag" column="tag"/>
+        <result property="createTime" column="create_time"/>
+        <result property="uploadTime" column="upload_time"/>
+    </resultMap>
+
+    <sql id="selectGalleryVo">
+        select id,
+               size,
+               format,
+               path,
+               resolution,
+               title,
+               description,
+               tag,
+               create_time,
+               upload_time
+        from so_gallery
+    </sql>
+
+    <select id="selectGalleryList" parameterType="Gallery" resultMap="GalleryResult">
+        <include refid="selectGalleryVo"/>
+        <where>
+            <if test="size != null  and size != ''">and size = #{size}</if>
+            <if test="format != null  and format != ''">and format = #{format}</if>
+            <if test="path != null  and path != ''">and path = #{path}</if>
+            <if test="resolution != null  and resolution != ''">and resolution = #{resolution}</if>
+            <if test="title != null  and title != ''">and title = #{title}</if>
+            <if test="description != null  and description != ''">and description = #{description}</if>
+            <if test="tag != null  and tag != ''">and tag = #{tag}</if>
+            <if test="uploadTime != null ">and upload_time = #{uploadTime}</if>
+        </where>
+    </select>
+
+    <select id="selectGalleryById" parameterType="String" resultMap="GalleryResult">
+        <include refid="selectGalleryVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertGallery" parameterType="Gallery">
+        insert into so_gallery
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="size != null and size != ''">size,</if>
+            <if test="format != null and format != ''">format,</if>
+            <if test="path != null and path != ''">path,</if>
+            <if test="resolution != null and resolution != ''">resolution,</if>
+            <if test="title != null and title != ''">title,</if>
+            <if test="description != null">description,</if>
+            <if test="tag != null">tag,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="uploadTime != null">upload_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="size != null and size != ''">#{size},</if>
+            <if test="format != null and format != ''">#{format},</if>
+            <if test="path != null and path != ''">#{path},</if>
+            <if test="resolution != null and resolution != ''">#{resolution},</if>
+            <if test="title != null and title != ''">#{title},</if>
+            <if test="description != null">#{description},</if>
+            <if test="tag != null">#{tag},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="uploadTime != null">#{uploadTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateGallery" parameterType="Gallery">
+        update so_gallery
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="size != null and size != ''">size = #{size},</if>
+            <if test="format != null and format != ''">format = #{format},</if>
+            <if test="path != null and path != ''">path = #{path},</if>
+            <if test="resolution != null and resolution != ''">resolution = #{resolution},</if>
+            <if test="title != null and title != ''">title = #{title},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="tag != null">tag = #{tag},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="uploadTime != null">upload_time = #{uploadTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteGalleryById" parameterType="String">
+        delete
+        from so_gallery
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteGalleryByIds" parameterType="String">
+        delete from so_gallery where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
