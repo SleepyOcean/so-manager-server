@@ -3,6 +3,7 @@ package com.sleepy.manager.common.utils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sleepy.manager.common.constant.Constants;
 import com.sleepy.manager.common.core.text.StrFormatter;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.util.AntPathMatcher;
 
 import java.io.IOException;
@@ -16,11 +17,25 @@ import java.util.regex.Pattern;
 
 /**
  * 字符串工具类
- * 
+ *
  * @author
  */
-public class StringUtils extends org.apache.commons.lang3.StringUtils
-{
+public class StringUtils extends org.apache.commons.lang3.StringUtils {
+
+    /** 常见字符 */
+    public static final String QUESTION_MARK = "?";
+    public static final String POINT = ".";
+    public static final String AND = "&";
+    public static final String EQUAL = "=";
+    public static final String NO_EQUAL = "<>";
+    public static final String PARENTHESES_LEFT = "(";
+    public static final String PARENTHESES_RIGHT = ")";
+    public static final String COMMA = ",";
+    public static final String OR_MARK = "OR";
+    public static final String AND_MARK = "AND";
+    public static final String FORWARD_SLASH = "/";
+    public static final String BACK_SLASH = "\\";
+
     /** 空字符串 */
     private static final String NULLSTR = "";
 
@@ -684,5 +699,9 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
 
     public static String getOrDefault(String str, String defaultStr) {
         return isEmpty(str) ? defaultStr : str;
+    }
+
+    public static String md5ForString(String s) {
+        return DigestUtils.md5Hex(s);
     }
 }

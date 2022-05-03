@@ -3,6 +3,8 @@ package com.sleepy.manager.system.domain;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sleepy.manager.common.annotation.Excel;
 import com.sleepy.manager.common.core.domain.BaseEntity;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -14,8 +16,12 @@ import java.util.Date;
  * @author sleepyocean
  * @date 2022-05-02
  */
+@Getter
+@Setter
 public class Gallery extends BaseEntity {
     private static final long serialVersionUID = 1L;
+
+    private String base64;
 
     /**
      * $column.columnComment
@@ -70,78 +76,6 @@ public class Gallery extends BaseEntity {
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Excel(name = "上传时间", width = 30, dateFormat = "yyyy-MM-dd")
     private Date uploadTime;
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getSize() {
-        return size;
-    }
-
-    public void setSize(String size) {
-        this.size = size;
-    }
-
-    public String getFormat() {
-        return format;
-    }
-
-    public void setFormat(String format) {
-        this.format = format;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
-    }
-
-    public String getResolution() {
-        return resolution;
-    }
-
-    public void setResolution(String resolution) {
-        this.resolution = resolution;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getTag() {
-        return tag;
-    }
-
-    public void setTag(String tag) {
-        this.tag = tag;
-    }
-
-    public Date getUploadTime() {
-        return uploadTime;
-    }
-
-    public void setUploadTime(Date uploadTime) {
-        this.uploadTime = uploadTime;
-    }
 
     @Override
     public String toString() {

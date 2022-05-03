@@ -14,6 +14,8 @@ so-manager-server:
   addressEnabled: false
   # 验证码类型 math 数组计算 char 字符验证
   captchaType: math
+  # 图床存储路径
+  galleryRoot: /ImgStorage
 
 # 开发环境配置
 server:

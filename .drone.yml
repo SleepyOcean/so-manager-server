@@ -19,4 +19,4 @@ steps:
       - mv ./so-manager-admin/target/so-manager-admin.jar ./
       - docker stop manager-server && docker rm manager-server && docker rmi manager-server
       - docker build -f ./so-manager-admin/Dockerfile -t manager-server .
-      - docker run -d -p 9060:8080 -v /home/sleepy/3-mount/theater-0:/0-Cinema0 -v /home/sleepy/3-mount/theater-1:/0-Cinema1 --name manager-server manager-server
+      - docker run -d -p 9060:8080 -v /home/sleepy/3-mount/theater-0:/0-Cinema0 -v /home/sleepy/3-mount/theater-1:/0-Cinema1 -v /home/sleepy/0-data/0-Golden/fileserver/ImgStorage:/ImgStorage --name manager-server manager-server
