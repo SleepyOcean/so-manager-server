@@ -82,7 +82,12 @@ public class ImageUtils
                 // 本机地址
                 String localPath = SoServerConfig.getProfile();
                 String downloadPath = localPath + StringUtils.substringAfter(url, Constants.RESOURCE_PREFIX);
-                in = new FileInputStream(downloadPath);
+                try {
+                    in = new FileInputStream(downloadPath);
+                } catch (FileNotFoundException e) {
+                    // 非downloadPath文件，默认按绝对路径处理
+                    in = new FileInputStream(url);
+                }
             }
             return IOUtils.toByteArray(in);
         } catch (Exception e) {

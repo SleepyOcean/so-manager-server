@@ -38,11 +38,12 @@
             <if test="format != null  and format != ''">and format = #{format}</if>
             <if test="path != null  and path != ''">and path = #{path}</if>
             <if test="resolution != null  and resolution != ''">and resolution = #{resolution}</if>
-            <if test="title != null  and title != ''">and title = #{title}</if>
+            <if test="title != null  and title != ''">and title like concat('%', #{title}, '%')</if>
             <if test="description != null  and description != ''">and description = #{description}</if>
             <if test="tag != null  and tag != ''">and tag = #{tag}</if>
             <if test="uploadTime != null ">and upload_time = #{uploadTime}</if>
         </where>
+        order by upload_time DESC
     </select>
 
     <select id="selectGalleryById" parameterType="String" resultMap="GalleryResult">

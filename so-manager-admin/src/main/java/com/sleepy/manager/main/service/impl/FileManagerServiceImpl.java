@@ -38,13 +38,14 @@ import static com.sleepy.manager.common.utils.file.FileUtils.constructPath;
 public class FileManagerServiceImpl implements FileManagerService {
 
     private static final String IMG_SERVER_URL_PLACEHOLDER = "PLACEHOLDER=IMG_SERVER_URL";
-    private static final String IMG_SERVER_URL_PREFIX = "https://gallery.sleepyocean.cn/resource/img/";
     private static final int THUMBNAIL_THRESHOLD = 300;
     private static final int THUMBNAIL_HEIGHT = 300;
     @Autowired
     GalleryMapper galleryMapper;
     @Value("${so-manager-server.galleryRoot}")
     private String galleryStorageRoot;
+    @Value("${so-manager-server.galleryPrefix}")
+    private String galleryServerUrlPrefix;
 
     @Override
     public byte[] getImg(String id) {
@@ -113,14 +114,14 @@ public class FileManagerServiceImpl implements FileManagerService {
         String md5 = md5ForString(gallery.getBase64());
 
         // 判断文件是否已经存在，若存在则直接返回结果
-        if (ObjectUtils.isEmpty(galleryMapper.selectGalleryById(md5))) {
+        if (!ObjectUtils.isEmpty(galleryMapper.selectGalleryById(md5))) {
             return new UnionResponse.Builder()
                     .status(HttpStatus.CONFLICT)
                     .message("The image already existed")
                     .data(new AssembledData.Builder()
                             .put("imageId", md5)
                             .put("url", IMG_SERVER_URL_PLACEHOLDER + md5)
-                            .put("imgUrl", IMG_SERVER_URL_PREFIX + md5)
+                            .put("imgUrl", galleryServerUrlPrefix + md5)
                             .build())
                     .build();
         }
@@ -153,7 +154,7 @@ public class FileManagerServiceImpl implements FileManagerService {
                     .data(new AssembledData.Builder()
                             .put("imageId", md5)
                             .put("url", IMG_SERVER_URL_PLACEHOLDER + md5)
-                            .put("imgUrl", IMG_SERVER_URL_PREFIX + md5)
+                            .put("imgUrl", galleryServerUrlPrefix + md5)
                             .build())
                     .build();
         } catch (Exception e) {

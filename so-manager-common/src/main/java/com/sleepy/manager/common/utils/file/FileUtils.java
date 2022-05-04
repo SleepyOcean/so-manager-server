@@ -15,47 +15,39 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.regex.Matcher;
 
 /**
  * 文件处理工具类
- * 
+ *
  * @author
  */
-public class FileUtils
-{
+public class FileUtils {
     public static String FILENAME_PATTERN = "[a-zA-Z0-9_\\-\\|\\.\\u4e00-\\u9fa5]+";
 
     /**
      * 输出指定文件的byte数组
-     * 
+     *
      * @param filePath 文件路径
-     * @param os 输出流
+     * @param os       输出流
      * @return
      */
-    public static void writeBytes(String filePath, OutputStream os) throws IOException
-    {
+    public static void writeBytes(String filePath, OutputStream os) throws IOException {
         FileInputStream fis = null;
-        try
-        {
+        try {
             File file = new File(filePath);
-            if (!file.exists())
-            {
+            if (!file.exists()) {
                 throw new FileNotFoundException(filePath);
             }
             fis = new FileInputStream(file);
             byte[] b = new byte[1024];
             int length;
-            while ((length = fis.read(b)) > 0)
-            {
+            while ((length = fis.read(b)) > 0) {
                 os.write(b, 0, length);
             }
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             throw e;
-        }
-        finally
-        {
+        } finally {
             IOUtils.close(os);
             IOUtils.close(fis);
         }
@@ -68,15 +60,14 @@ public class FileUtils
      * @return 目标文件
      * @throws IOException IO异常
      */
-    public static String writeImportBytes(byte[] data) throws IOException
-    {
+    public static String writeImportBytes(byte[] data) throws IOException {
         return writeBytes(data, SoServerConfig.getImportPath());
     }
 
     /**
      * 写数据到文件中
      *
-     * @param data 数据
+     * @param data      数据
      * @param uploadDir 目标文件
      * @return 目标文件
      * @throws IOException IO异常
@@ -284,6 +275,18 @@ public class FileUtils
     public static String constructPath(String... path) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < path.length; i++) {
+            // 特殊处理： 处理相对路径的的开头包含文件分割符，导致路径错误
+            if (i > 0 && (path[i].indexOf("\\") == 0 || path[i].indexOf("/") == 0)) {
+                path[i] = path[i].substring(1);
+            }
+            // 特殊处理： 处理相对路径中包含 "/"、"\"导致的路径错误
+            if (path[i].contains("\\")) {
+                path[i] = path[i].replaceAll("\\\\", Matcher.quoteReplacement(File.separator));
+            }
+            if (path[i].contains("/")) {
+                path[i] = path[i].replaceAll("/", Matcher.quoteReplacement(File.separator));
+            }
+
             sb.append(path[i]);
             if (i != path.length - 1) {
                 sb.append(File.separatorChar);

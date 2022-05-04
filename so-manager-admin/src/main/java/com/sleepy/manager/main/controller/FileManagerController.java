@@ -8,8 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-
 /**
  * @author captain1920
  * @classname FileManagerController
@@ -43,13 +41,13 @@ public class FileManagerController {
         return fileManagerService.getCompressedImg(ratio, url);
     }
 
-    @PostMapping("/img/upload")
-    public UnionResponse saveImage(@RequestBody Gallery gallery) throws IOException {
+    @PostMapping("/gallery/upload")
+    public UnionResponse saveImage(@RequestBody Gallery gallery) {
         return fileManagerService.upload(gallery);
     }
 
-    @PostMapping("/img/delete/{id}")
-    public UnionResponse deleteImage(@PathVariable("id") String id) throws IOException {
+    @PostMapping("/gallery/delete/{id}")
+    public UnionResponse deleteImage(@PathVariable("id") String id) {
         return fileManagerService.delete(id);
     }
 }
