@@ -50,4 +50,20 @@ public interface FileManagerService {
      * @return
      */
     UnionResponse upload(Gallery gallery);
+
+    /**
+     * 获取电影海报
+     *
+     * @param id
+     * @return
+     */
+    byte[] getMovieCover(long id);
+
+    /**
+     * 获取电影横板海报
+     *
+     * @param id
+     * @return
+     */
+    byte[] getMovieFanart(long id);
 }

@@ -1,5 +1,7 @@
 package com.sleepy.manager.system.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.sleepy.manager.blog.common.AssembledData;
 import com.sleepy.manager.common.annotation.Log;
 import com.sleepy.manager.common.core.controller.BaseController;
 import com.sleepy.manager.common.core.domain.AjaxResult;
@@ -9,11 +11,16 @@ import com.sleepy.manager.common.utils.poi.ExcelUtil;
 import com.sleepy.manager.system.domain.Movie;
 import com.sleepy.manager.system.service.IMovieService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.sleepy.manager.common.utils.DateUtils.dateTime;
+import static com.sleepy.manager.common.utils.StringUtils.format;
 
 /**
  * 电影库Controller
@@ -27,6 +34,9 @@ public class MovieController extends BaseController {
     @Autowired
     private IMovieService movieService;
 
+    @Value("${so-manager-server.galleryPrefix}")
+    private String galleryServerUrlPrefix;
+
     /**
      * 查询电影库列表
      */
@@ -35,7 +45,16 @@ public class MovieController extends BaseController {
     public TableDataInfo list(Movie movie) {
         startPage();
         List<Movie> list = movieService.selectMovieList(movie);
-        return getDataTable(list);
+        TableDataInfo data = getDataTable(list);
+        data.setRows(((List<Movie>) data.getRows()).stream().map(r -> new AssembledData.Builder()
+                .putAll(r)
+                .put("coverUrl", format("{}{}{}", galleryServerUrlPrefix, "movie-cover/", r.getId()))
+                .put("fanartUrl", format("{}{}{}", galleryServerUrlPrefix, "movie-fanart/", r.getId()))
+                .put("updateDate", dateTime(r.getUpdatedAt()))
+                .put("createDate", dateTime(r.getCreatedAt()))
+                .put("detail", new AssembledData.Builder().putAll(JSON.parseObject(r.getDetail())).build())
+                .build()).collect(Collectors.toList()));
+        return data;
     }
 
     /**

@@ -50,4 +50,17 @@ public class FileManagerController {
     public UnionResponse deleteImage(@PathVariable("id") String id) {
         return fileManagerService.delete(id);
     }
+
+    // Movie 模块
+    @GetMapping(value = "/img/movie-cover/{id}", produces = MediaType.IMAGE_JPEG_VALUE)
+    @ResponseBody
+    public byte[] getMovieCover(@PathVariable("id") long id) {
+        return fileManagerService.getMovieCover(id);
+    }
+
+    @GetMapping(value = "/img/movie-fanart/{id}", produces = MediaType.IMAGE_JPEG_VALUE)
+    @ResponseBody
+    public byte[] getMovieFanart(@PathVariable("id") long id) {
+        return fileManagerService.getMovieFanart(id);
+    }
 }

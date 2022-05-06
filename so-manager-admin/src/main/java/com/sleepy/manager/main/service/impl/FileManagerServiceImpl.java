@@ -6,7 +6,9 @@ import com.sleepy.manager.common.utils.file.ImageUtils;
 import com.sleepy.manager.main.helper.MediaMetaDataHelper;
 import com.sleepy.manager.main.service.FileManagerService;
 import com.sleepy.manager.system.domain.Gallery;
+import com.sleepy.manager.system.domain.Movie;
 import com.sleepy.manager.system.mapper.GalleryMapper;
+import com.sleepy.manager.system.mapper.MovieMapper;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +44,8 @@ public class FileManagerServiceImpl implements FileManagerService {
     private static final int THUMBNAIL_HEIGHT = 300;
     @Autowired
     GalleryMapper galleryMapper;
+    @Autowired
+    MovieMapper movieMapper;
     @Value("${so-manager-server.galleryRoot}")
     private String galleryStorageRoot;
     @Value("${so-manager-server.galleryPrefix}")
@@ -163,6 +167,26 @@ public class FileManagerServiceImpl implements FileManagerService {
             log.error("image save error", e);
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public byte[] getMovieCover(long id) {
+        Movie movie = movieMapper.selectMovieById(id);
+        if (ObjectUtils.isEmpty(movie)) {
+            return new byte[0];
+        }
+        String coverLocalPath = movie.getCover();
+        return ImageUtils.getImage(coverLocalPath);
+    }
+
+    @Override
+    public byte[] getMovieFanart(long id) {
+        Movie movie = movieMapper.selectMovieById(id);
+        if (ObjectUtils.isEmpty(movie)) {
+            return new byte[0];
+        }
+        String fanartLocalPath = movie.getHeadCover();
+        return ImageUtils.getImage(fanartLocalPath);
     }
 
     private void deleteImageFile(String id) {

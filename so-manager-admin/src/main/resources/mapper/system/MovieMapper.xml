@@ -39,7 +39,7 @@
         <include refid="selectMovieVo"/>
         <where>
             <if test="imdbid != null  and imdbid != ''">and imdbId = #{imdbid}</if>
-            <if test="title != null  and title != ''">and title = #{title}</if>
+            <if test="title != null  and title != ''">and title like concat('%', #{title}, '%')</if>
             <if test="year != null ">and year = #{year}</if>
             <if test="address != null  and address != ''">and address = #{address}</if>
             <if test="intro != null  and intro != ''">and intro = #{intro}</if>
@@ -50,6 +50,7 @@
             <if test="updatedAt != null ">and updated_at = #{updatedAt}</if>
             <if test="status != null ">and status = #{status}</if>
         </where>
+        order by created_at DESC
     </select>
 
     <select id="selectMovieById" parameterType="Long" resultMap="MovieResult">
