@@ -3,8 +3,11 @@ package com.sleepy.manager.main.controller;
 import com.sleepy.manager.blog.common.UnionResponse;
 import com.sleepy.manager.main.service.FileManagerService;
 import com.sleepy.manager.system.domain.Gallery;
+import com.sleepy.manager.system.domain.Movie;
+import com.sleepy.manager.system.mapper.MovieMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +24,8 @@ import org.springframework.web.bind.annotation.*;
 public class FileManagerController {
     @Autowired
     FileManagerService fileManagerService;
+    @Autowired
+    MovieMapper movieMapper;
 
     // Image 模块
     @GetMapping(value = "/img/{id}", produces = MediaType.IMAGE_JPEG_VALUE)
@@ -62,5 +67,11 @@ public class FileManagerController {
     @ResponseBody
     public byte[] getMovieFanart(@PathVariable("id") long id) {
         return fileManagerService.getMovieFanart(id);
+    }
+
+    @GetMapping(value = "/movie/{id}")
+    public UnionResponse getMovieDetail(@PathVariable("id") long id) {
+        Movie movie = movieMapper.selectMovieById(id);
+        return new UnionResponse.Builder().status(HttpStatus.OK).data(movie).build();
     }
 }

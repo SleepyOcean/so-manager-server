@@ -1,8 +1,19 @@
 package com.sleepy.manager.main.service.impl;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.sleepy.manager.blog.common.AssembledData;
+import com.sleepy.manager.main.helper.MovieHelper;
 import com.sleepy.manager.system.domain.Movie;
+import com.sleepy.manager.utils.DataSnapshotUtils;
 import org.junit.Test;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.sleepy.manager.common.utils.DateUtils.dateTimeNow;
+import static com.sleepy.manager.common.utils.StringUtils.format;
 
 /**
  * @author captain1920
@@ -14,6 +25,71 @@ public class ZiMuKuSubtitleCrawlServiceImplTest {
 
     ZiMuKuSubtitleCrawlServiceImpl ziMuKuSubtitleCrawlService = new ZiMuKuSubtitleCrawlServiceImpl();
 
+
+    /**
+     * 手动匹配电影字幕
+     */
+    @Test
+    public void manualMatchSubtitles() throws IOException {
+        List<AssembledData> subtitleMatchedList = DataSnapshotUtils.loadDataSnapshotFromFile("local/DataSnapshot/subtitle-matched-list-2022-05-08.json", new TypeToken<List<AssembledData>>() {
+        }.getType());
+
+        List<AssembledData> autoMatchBestSubList = new ArrayList<>();
+
+
+        for (AssembledData data : subtitleMatchedList) {
+            String originalName = data.getJSONObject("movie").getJSONObject("detail").getString("original_filename");
+            List<AssembledData> subDetailList = new Gson().fromJson(data.getJSONArray("subtitle").toJSONString(), new TypeToken<List<AssembledData>>() {
+            }.getType());
+            AssembledData matched = MovieHelper.searchBestMatch(subDetailList, originalName);
+
+            autoMatchBestSubList.add(new AssembledData.Builder()
+                    .putAll(data.getJSONObject("movie"))
+                    .put("subtitles", data.getJSONArray("subtitle"))
+                    .put("originalName", originalName)
+                    .put("bestMatch", matched)
+                    .build());
+        }
+
+        DataSnapshotUtils.writeDataSnapshotToFile("local/DataSnapshot/subtitle-auto-matched-list-2022-05-08-01.json", autoMatchBestSubList);
+
+//        List<Movie> movieList = DataSnapshotUtils.loadDataSnapshotFromFile("local/DataSnapshot/movie-base-2022-05-06.json", new TypeToken<List<Movie>>() {
+//        }.getType());
+
+        // 过滤无需中文字幕的电影
+//        movieList = movieList.stream()
+//                .filter(m -> !(StringUtils.isEmpty(m.getImdbid()) ||
+//                        new AssembledData.Builder().putAll(m.getDetail()).build().getString("languages").toLowerCase().contains("chinese")))
+//                .collect(Collectors.toList());
+
+        // 过滤已有字幕的电影
+//        movieList = movieList.stream().filter(m -> {
+//            File file = new File(m.getAddress());
+//            for (String name : file.getParentFile().list()) {
+//                if(name.contains(".ass") || name.contains(".srt")) {
+//                    return false;
+//                }
+//            }
+//            return true;
+//        }).collect(Collectors.toList());
+
+//        for (int i = 2; i < movieList.size(); i++) {
+//            AssembledData data = ziMuKuSubtitleCrawlService.listSubtitles(movieList.get(i));
+//            if(!ObjectUtils.isEmpty(data)){
+//                FileUtils.writeStringToFile(new File("local/DataSnapshot/subtitle-match-list.json"),
+//                        new AssembledData.Builder().put("index", i).put("record", data).build().toJSONString()+"\n",
+//                        Charset.defaultCharset(),
+//                        true);
+//            }
+//        }
+    }
+
+    @Test
+    public void rematchNasMovieSubTest() throws IOException {
+        AssembledData subMatchMap = ziMuKuSubtitleCrawlService.rematchNasMovieSub();
+        DataSnapshotUtils.writeDataSnapshotToFile(format("local/DataSnapshot/subMatchMap-{}.json", dateTimeNow()), subMatchMap);
+    }
+
     @Test
     public void listSubtitlesTest() {
         Movie movie = new Movie();
@@ -22,4 +98,10 @@ public class ZiMuKuSubtitleCrawlServiceImplTest {
         AssembledData data = ziMuKuSubtitleCrawlService.listSubtitles(movie);
         System.out.println(data.toJSONString());
     }
+
+    @Test
+    public void downloadSubtitleTest() {
+
+    }
+
 }

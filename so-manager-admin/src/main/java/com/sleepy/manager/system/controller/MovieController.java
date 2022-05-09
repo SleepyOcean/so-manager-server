@@ -1,6 +1,5 @@
 package com.sleepy.manager.system.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.sleepy.manager.blog.common.AssembledData;
 import com.sleepy.manager.common.annotation.Log;
 import com.sleepy.manager.common.core.controller.BaseController;
@@ -8,6 +7,7 @@ import com.sleepy.manager.common.core.domain.AjaxResult;
 import com.sleepy.manager.common.core.page.TableDataInfo;
 import com.sleepy.manager.common.enums.BusinessType;
 import com.sleepy.manager.common.utils.poi.ExcelUtil;
+import com.sleepy.manager.main.helper.MovieHelper;
 import com.sleepy.manager.system.domain.Movie;
 import com.sleepy.manager.system.service.IMovieService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,11 +48,11 @@ public class MovieController extends BaseController {
         TableDataInfo data = getDataTable(list);
         data.setRows(((List<Movie>) data.getRows()).stream().map(r -> new AssembledData.Builder()
                 .putAll(r)
+                .putAll(MovieHelper.genMovieTag(r))
                 .put("coverUrl", format("{}{}{}", galleryServerUrlPrefix, "movie-cover/", r.getId()))
                 .put("fanartUrl", format("{}{}{}", galleryServerUrlPrefix, "movie-fanart/", r.getId()))
                 .put("updateDate", dateTime(r.getUpdatedAt()))
                 .put("createDate", dateTime(r.getCreatedAt()))
-                .put("detail", new AssembledData.Builder().putAll(JSON.parseObject(r.getDetail())).build())
                 .build()).collect(Collectors.toList()));
         return data;
     }

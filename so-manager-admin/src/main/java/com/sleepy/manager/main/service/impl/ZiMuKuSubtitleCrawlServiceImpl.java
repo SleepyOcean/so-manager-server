@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.sleepy.manager.common.utils.CommonUtils.generateRandomNum;
+import static com.sleepy.manager.common.utils.StringUtils.format;
 
 /**
  * @author captain1920
@@ -81,7 +82,7 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
                     .put("subsMatchMap", subsMatchMap)
                     .build();
         } catch (Exception e) {
-            String msg = StringUtils.format("rematchNasMovieSub failed! because Exception={}, {}",
+            String msg = format("rematchNasMovieSub failed! because Exception={}, {}",
                     e.getClass().getName(), ExceptionUtil.getRootErrorMessage(e));
             log.error(msg);
             throw new ServiceException(msg);
@@ -189,7 +190,7 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
                     new FileOutputStream(downloadPath));
             return new AssembledData.Builder().put("downloadedPath", downloadPath).build();
         } catch (Exception e) {
-            String msg = StringUtils.format("downloadSubtitle failed! because Exception={}, {} [movieName={}, downloadPageRoute={}]",
+            String msg = format("downloadSubtitle failed! because Exception={}, {} [movieName={}, downloadPageRoute={}]",
                     e.getClass().getName(), ExceptionUtil.getRootErrorMessage(e), movieName, downloadPageRoute);
             log.error(msg);
             throw new ServiceException(msg);

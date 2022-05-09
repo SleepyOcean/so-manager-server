@@ -36,8 +36,12 @@ public class AssembledData extends JSONObject {
             return this;
         }
 
+        public Builder putAll(String jsonStr) {
+            return putAll(JSON.parseObject(jsonStr));
+        }
+
         public Builder putAll(Object object) {
-            return putAll(JSON.parseObject(JSON.toJSONString(object)));
+            return putAll(JSON.toJSONString(object));
         }
 
         public AssembledData build() {

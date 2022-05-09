@@ -3,8 +3,10 @@ package com.sleepy.manager.main.helper;
 import com.alibaba.fastjson.JSON;
 import com.sleepy.manager.blog.common.AssembledData;
 import com.sleepy.manager.common.utils.DateUtils;
+import com.sleepy.manager.common.utils.StringUtils;
 import com.sleepy.manager.common.utils.XmlUtils;
 import com.sleepy.manager.system.domain.Movie;
+import lombok.extern.slf4j.Slf4j;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 import org.apache.commons.compress.utils.Sets;
 import org.apache.commons.io.FileUtils;
@@ -23,6 +25,7 @@ import java.util.stream.Collectors;
  * @description TODO
  * @date 2022/4/29 20:36
  */
+@Slf4j
 public class MovieHelper {
 
     private final static Set<String> VIDEO_FORMAT = Sets.newHashSet("mkv", "mp4", "m2ts", "avi", "MKV", "m4v", "wmv", "rmvb", "flv", "mpg");
@@ -40,7 +43,7 @@ public class MovieHelper {
         for (int i = 0; i < searchList.size(); i++) {
             AssembledData data = searchList.get(i);
             String subTitle = data.getString("title");
-            int ratio = FuzzySearch.ratio(originalMovieFileName, subTitle);
+            int ratio = FuzzySearch.partialRatio(originalMovieFileName, subTitle);
             if (ratio > lastBestRatio) {
                 lastBestRatio = ratio;
                 bestMatchIndex = i;
@@ -104,5 +107,35 @@ public class MovieHelper {
         for (File f : file.listFiles()) {
             findMovieRecursion(moviePathList, f);
         }
+    }
+
+    public static AssembledData genMovieTag(Movie movie) {
+        AssembledData detail = new AssembledData.Builder().putAll(movie.getDetail()).build();
+        AssembledData.Builder dataBuilder = new AssembledData.Builder();
+        dataBuilder.put("rating", "N/A");
+        dataBuilder.put("ratingNum", "N/A");
+        try {
+            int movieScreenWidth = detail.getJSONObject("fileinfo").getJSONObject("streamdetails").getJSONObject("video").getInteger("width");
+            if (movieScreenWidth == 0) {
+                dataBuilder.put("ratio", "N/A");
+            } else if (movieScreenWidth < 900) {
+                dataBuilder.put("ratio", "720P");
+            } else if (movieScreenWidth <= 1920) {
+                dataBuilder.put("ratio", "1080P");
+            } else {
+                dataBuilder.put("ratio", "2160P");
+            }
+            List<Object> ratings = detail.getJSONObject("ratings").getJSONArray("rating")
+                    .stream()
+                    .filter(m -> "imdb".equals(JSON.parseObject(m.toString()).getString("@name"))).collect(Collectors.toList());
+            if (ratings.size() > 0) {
+                AssembledData rating = new AssembledData.Builder().putAll(ratings.get(0)).build();
+                dataBuilder.put("rating", StringUtils.getValFormat(rating.getString("value"), 1));
+                dataBuilder.put("ratingNum", rating.getInteger("votes"));
+            }
+        } catch (Exception e) {
+            log.warn("解析电影详情内容出错[{}]", e.getMessage());
+        }
+        return dataBuilder.put("detail", detail).build();
     }
 }

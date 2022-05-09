@@ -2,6 +2,7 @@ package com.sleepy.manager.main.service.impl;
 
 import com.sleepy.manager.blog.common.AssembledData;
 import com.sleepy.manager.blog.common.UnionResponse;
+import com.sleepy.manager.common.utils.file.FileUtils;
 import com.sleepy.manager.common.utils.file.ImageUtils;
 import com.sleepy.manager.main.helper.MediaMetaDataHelper;
 import com.sleepy.manager.main.service.FileManagerService;
@@ -50,6 +51,8 @@ public class FileManagerServiceImpl implements FileManagerService {
     private String galleryStorageRoot;
     @Value("${so-manager-server.galleryPrefix}")
     private String galleryServerUrlPrefix;
+    @Value("${so-manager-server.movieRoot}")
+    private String movieStorageRoot;
 
     @Override
     public byte[] getImg(String id) {
@@ -176,7 +179,7 @@ public class FileManagerServiceImpl implements FileManagerService {
             return new byte[0];
         }
         String coverLocalPath = movie.getCover();
-        return ImageUtils.getImage(coverLocalPath);
+        return ImageUtils.getImage(FileUtils.constructPath(movieStorageRoot, coverLocalPath));
     }
 
     @Override
@@ -186,7 +189,7 @@ public class FileManagerServiceImpl implements FileManagerService {
             return new byte[0];
         }
         String fanartLocalPath = movie.getHeadCover();
-        return ImageUtils.getImage(fanartLocalPath);
+        return ImageUtils.getImage(FileUtils.constructPath(movieStorageRoot, fanartLocalPath));
     }
 
     private void deleteImageFile(String id) {
