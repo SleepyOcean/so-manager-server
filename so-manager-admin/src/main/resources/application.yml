@@ -16,7 +16,7 @@ so-manager-server:
   captchaType: math
   # 图床存储路径
   galleryRoot: /ImgStorage
-  galleryPrefix: http://gallery.sleepyocean.cn/resource/img/
+  galleryPrefix: https://gallery.sleepyocean.cn/resource/img/
   movieRoot:
 
 # 开发环境配置
