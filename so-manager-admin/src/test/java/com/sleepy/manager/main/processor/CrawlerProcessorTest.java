@@ -1,6 +1,6 @@
 package com.sleepy.manager.main.processor;
 
-import com.sleepy.manager.blog.common.AssembledData;
+import com.sleepy.manager.main.common.AssembledData;
 import org.junit.Test;
 
 /**

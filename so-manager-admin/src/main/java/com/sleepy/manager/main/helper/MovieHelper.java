@@ -1,10 +1,10 @@
 package com.sleepy.manager.main.helper;
 
 import com.alibaba.fastjson.JSON;
-import com.sleepy.manager.blog.common.AssembledData;
 import com.sleepy.manager.common.utils.DateUtils;
 import com.sleepy.manager.common.utils.StringUtils;
 import com.sleepy.manager.common.utils.XmlUtils;
+import com.sleepy.manager.main.common.AssembledData;
 import com.sleepy.manager.system.domain.Movie;
 import lombok.extern.slf4j.Slf4j;
 import me.xdrop.fuzzywuzzy.FuzzySearch;

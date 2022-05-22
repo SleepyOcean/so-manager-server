@@ -1,6 +1,6 @@
-package com.sleepy.manager.generation.mapper;
+package com.sleepy.manager.system.mapper;
 
-import com.sleepy.manager.generation.domain.Bookmark;
+import com.sleepy.manager.system.domain.Bookmark;
 
 import java.util.List;
 

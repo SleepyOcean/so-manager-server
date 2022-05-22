@@ -2,8 +2,8 @@ package com.sleepy.manager.func.helper;
 
 import cn.hutool.http.HttpUtil;
 import com.google.gson.reflect.TypeToken;
-import com.sleepy.manager.blog.common.AssembledData;
 import com.sleepy.manager.common.utils.StringUtils;
+import com.sleepy.manager.main.common.AssembledData;
 import com.sleepy.manager.main.service.impl.ZiMuKuSubtitleCrawlServiceImpl;
 import com.sleepy.manager.system.domain.Movie;
 import com.sleepy.manager.utils.DataSnapshotUtils;

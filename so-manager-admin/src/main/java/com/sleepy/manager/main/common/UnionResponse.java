@@ -1,4 +1,4 @@
-package com.sleepy.manager.blog.common;
+package com.sleepy.manager.main.common;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;

@@ -1,6 +1,6 @@
 package com.sleepy.manager.main.service;
 
-import com.sleepy.manager.blog.common.AssembledData;
+import com.sleepy.manager.main.common.AssembledData;
 import com.sleepy.manager.system.domain.Movie;
 
 /**

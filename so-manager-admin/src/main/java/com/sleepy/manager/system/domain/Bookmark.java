@@ -1,4 +1,4 @@
-package com.sleepy.manager.generation.domain;
+package com.sleepy.manager.system.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sleepy.manager.common.annotation.Excel;

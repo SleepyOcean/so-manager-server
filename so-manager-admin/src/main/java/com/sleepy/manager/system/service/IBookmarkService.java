@@ -1,6 +1,6 @@
-package com.sleepy.manager.generation.service;
+package com.sleepy.manager.system.service;
 
-import com.sleepy.manager.generation.domain.Bookmark;
+import com.sleepy.manager.system.domain.Bookmark;
 
 import java.util.List;
 

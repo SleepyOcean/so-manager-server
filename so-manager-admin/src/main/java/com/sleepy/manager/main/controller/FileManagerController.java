@@ -1,6 +1,6 @@
 package com.sleepy.manager.main.controller;
 
-import com.sleepy.manager.blog.common.UnionResponse;
+import com.sleepy.manager.main.common.UnionResponse;
 import com.sleepy.manager.main.service.FileManagerService;
 import com.sleepy.manager.system.domain.Gallery;
 import com.sleepy.manager.system.domain.Movie;

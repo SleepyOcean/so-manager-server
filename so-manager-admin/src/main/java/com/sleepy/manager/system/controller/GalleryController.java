@@ -1,12 +1,12 @@
 package com.sleepy.manager.system.controller;
 
-import com.sleepy.manager.blog.common.AssembledData;
 import com.sleepy.manager.common.annotation.Log;
 import com.sleepy.manager.common.core.controller.BaseController;
 import com.sleepy.manager.common.core.domain.AjaxResult;
 import com.sleepy.manager.common.core.page.TableDataInfo;
 import com.sleepy.manager.common.enums.BusinessType;
 import com.sleepy.manager.common.utils.poi.ExcelUtil;
+import com.sleepy.manager.main.common.AssembledData;
 import com.sleepy.manager.system.domain.Gallery;
 import com.sleepy.manager.system.service.IGalleryService;
 import org.springframework.beans.factory.annotation.Autowired;

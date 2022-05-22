@@ -1,9 +1,9 @@
 package com.sleepy.manager.main.service.impl;
 
-import com.sleepy.manager.blog.common.AssembledData;
-import com.sleepy.manager.blog.common.UnionResponse;
 import com.sleepy.manager.common.utils.file.FileUtils;
 import com.sleepy.manager.common.utils.file.ImageUtils;
+import com.sleepy.manager.main.common.AssembledData;
+import com.sleepy.manager.main.common.UnionResponse;
 import com.sleepy.manager.main.helper.MediaMetaDataHelper;
 import com.sleepy.manager.main.service.FileManagerService;
 import com.sleepy.manager.system.domain.Gallery;

@@ -1,7 +1,7 @@
 package com.sleepy.manager.main.service.impl;
 
 import cn.hutool.core.util.ArrayUtil;
-import com.sleepy.manager.blog.common.AssembledData;
+import com.sleepy.manager.main.common.AssembledData;
 import com.sleepy.manager.system.domain.Movie;
 import com.sleepy.manager.utils.DataSnapshotUtils;
 import org.junit.Test;

@@ -1,13 +1,13 @@
 package com.sleepy.manager.main.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.sleepy.manager.blog.common.AssembledData;
-import com.sleepy.manager.blog.common.UnionResponse;
 import com.sleepy.manager.common.core.domain.entity.SysUser;
 import com.sleepy.manager.common.exception.ServiceException;
 import com.sleepy.manager.common.utils.ExceptionUtil;
 import com.sleepy.manager.common.utils.StringUtils;
 import com.sleepy.manager.generator.util.VelocityInitializer;
+import com.sleepy.manager.main.common.AssembledData;
+import com.sleepy.manager.main.common.UnionResponse;
 import com.sleepy.manager.main.helper.MovieHelper;
 import com.sleepy.manager.main.processor.CrawlerProcessor;
 import com.sleepy.manager.main.service.MainManagerService;
@@ -27,13 +27,12 @@ import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.sleepy.manager.blog.common.Constant.USER_ROUTES_KEY_PREFIX;
-
 
 @Service
 @Slf4j
 public class MainManagerServiceImpl implements MainManagerService {
 
+    private static final String USER_ROUTES_KEY_PREFIX = "so.user.routes:";
     @Autowired
     ISysConfigService configService;
 

@@ -1,6 +1,6 @@
 package com.sleepy.manager.main.service;
 
-import com.sleepy.manager.blog.common.UnionResponse;
+import com.sleepy.manager.main.common.UnionResponse;
 import com.sleepy.manager.system.domain.Gallery;
 
 /**

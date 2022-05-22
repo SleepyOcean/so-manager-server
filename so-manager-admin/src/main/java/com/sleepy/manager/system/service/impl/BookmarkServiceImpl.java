@@ -1,8 +1,8 @@
-package com.sleepy.manager.generation.service.impl;
+package com.sleepy.manager.system.service.impl;
 
-import com.sleepy.manager.generation.domain.Bookmark;
-import com.sleepy.manager.generation.mapper.BookmarkMapper;
-import com.sleepy.manager.generation.service.IBookmarkService;
+import com.sleepy.manager.system.domain.Bookmark;
+import com.sleepy.manager.system.mapper.BookmarkMapper;
+import com.sleepy.manager.system.service.IBookmarkService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

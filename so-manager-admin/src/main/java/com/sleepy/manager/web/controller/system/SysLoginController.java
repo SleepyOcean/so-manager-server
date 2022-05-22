@@ -1,7 +1,5 @@
 package com.sleepy.manager.web.controller.system;
 
-import com.sleepy.manager.blog.common.AssembledData;
-import com.sleepy.manager.blog.common.UnionResponse;
 import com.sleepy.manager.common.constant.Constants;
 import com.sleepy.manager.common.core.domain.AjaxResult;
 import com.sleepy.manager.common.core.domain.entity.SysMenu;
@@ -10,6 +8,8 @@ import com.sleepy.manager.common.core.domain.model.LoginBody;
 import com.sleepy.manager.common.utils.SecurityUtils;
 import com.sleepy.manager.framework.web.service.SysLoginService;
 import com.sleepy.manager.framework.web.service.SysPermissionService;
+import com.sleepy.manager.main.common.AssembledData;
+import com.sleepy.manager.main.common.UnionResponse;
 import com.sleepy.manager.system.service.ISysMenuService;
 import com.sleepy.manager.system.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;

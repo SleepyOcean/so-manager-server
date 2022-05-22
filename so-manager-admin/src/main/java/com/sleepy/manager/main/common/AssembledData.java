@@ -1,4 +1,4 @@
-package com.sleepy.manager.blog.common;
+package com.sleepy.manager.main.common;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;

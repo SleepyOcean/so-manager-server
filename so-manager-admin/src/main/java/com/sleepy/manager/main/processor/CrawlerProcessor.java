@@ -3,7 +3,7 @@ package com.sleepy.manager.main.processor;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.sleepy.manager.blog.common.AssembledData;
+import com.sleepy.manager.main.common.AssembledData;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;

@@ -8,8 +8,8 @@ import com.drew.metadata.MetadataException;
 import com.drew.metadata.Tag;
 import com.drew.metadata.exif.ExifIFD0Directory;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
-import com.sleepy.manager.blog.common.AssembledData;
 import com.sleepy.manager.common.utils.StringUtils;
+import com.sleepy.manager.main.common.AssembledData;
 
 import java.io.File;
 import java.io.IOException;
