@@ -8,8 +8,6 @@ import com.gargoylesoftware.htmlunit.*;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.sleepy.manager.blog.common.AssembledData;
 import com.sleepy.manager.common.core.redis.RedisCache;
-import com.sleepy.manager.common.exception.ServiceException;
-import com.sleepy.manager.common.utils.ExceptionUtil;
 import com.sleepy.manager.common.utils.StringUtils;
 import com.sleepy.manager.common.utils.file.FileUtils;
 import com.sleepy.manager.main.helper.MovieHelper;
@@ -34,6 +32,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.sleepy.manager.common.utils.CommonUtils.generateRandomNum;
+import static com.sleepy.manager.common.utils.LogUtils.logError;
+import static com.sleepy.manager.common.utils.LogUtils.logServiceError;
 import static com.sleepy.manager.common.utils.StringUtils.format;
 import static com.sleepy.manager.common.utils.file.FileUtils.checkDirExistAndCreate;
 import static com.sleepy.manager.common.utils.file.FileUtils.constructCachePath;
@@ -100,11 +100,9 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
                     .put("subsMatchMap", subsMatchMap)
                     .build();
         } catch (Exception e) {
-            String msg = format("rematchNasMovieSub failed! because Exception={}, {}",
-                    e.getClass().getName(), ExceptionUtil.getRootErrorMessage(e));
-            log.error(msg);
-            throw new ServiceException(msg);
+            logServiceError(e, "rematchNasMovieSub failed!");
         }
+        return new AssembledData.Builder().build();
     }
 
     @Override
@@ -174,11 +172,9 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
                     .put("bestMatch", bestMatch)
                     .build();
         } catch (Exception e) {
-            String msg = StringUtils.format("downloadSubtitle failed! because Exception={}, {} [ttID={}]",
-                    e.getClass().getName(), ExceptionUtil.getRootErrorMessage(e), movie.getImdbid());
-            log.error(msg);
-            throw new ServiceException(msg);
+            logServiceError(e, format("listSubtitles failed! movieName[{}]", movie.getTitle()));
         }
+        return new AssembledData.Builder().build();
     }
 
     @Override
@@ -220,8 +216,9 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
             fos.close();
             return new AssembledData.Builder().put("downloadedPath", downloadPath).build();
         } catch (Exception e) {
-            throw new Exception(e);
+            logServiceError(e, format("downloadSubtitle failed! movieID[{}], downloadPageRoute[{}]", movieId, downloadPageRoute));
         }
+        return new AssembledData.Builder().build();
     }
 
     /**
@@ -304,7 +301,7 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
         checkDirExistAndCreate(extractedSubFolder);
         File subFolder = recursionSearchSub(extractedSubFolder);
         if (ObjectUtils.isEmpty(subFolder)) {
-            log.warn("[moveExtractedSub] not found suitable sub in movieId({})", movie.getId());
+            log.warn("not found suitable sub in movieId({})", movie.getId());
             FileUtil.del(extractedSubFolder);
             return;
         }
@@ -334,7 +331,7 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
                 String destDir = constructCachePath(SUBTITLE_DOWNLOAD_ROOT, movie.getId().toString());
                 String srcFile = listFile.getAbsolutePath();
                 String copyRes = RuntimeUtil.execForStr(format("cmd /c copy \"{}\" \"{}\"", srcFile, destDir));
-                log.info("[moveExtractedSub] copy msg\n{}", copyRes);
+                log.info("copy msg\n{}", copyRes);
             }
         }
     }
@@ -352,7 +349,7 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
 
         if (compressionList.size() != 1) {
             if (compressionList.size() > 1) {
-                log.warn("[extractSub] compressionList irregular in movieId({}), compressionList={}", movie.getId(), compressionList);
+                log.warn("compressionList irregular in movieId({}), compressionList={}", movie.getId(), compressionList);
             }
             return false;
         }
@@ -367,7 +364,7 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
             }
         }
         String extractRes = RuntimeUtil.execForStr(format("7z x \"{}\" -o\"{}\"", compressFileName, extractDir));
-        log.info("[extractSub] extracted msg\n{}", extractRes);
+        log.info("extracted msg\n{}", extractRes);
         return true;
     }
 
@@ -395,7 +392,7 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
             try {
                 FileUtil.rename(sub, newName, true, false);
             } catch (Exception e) {
-                log.error("[renameSub] rename failed! msg={}", e.getMessage());
+                logError(e);
             }
         }
     }
