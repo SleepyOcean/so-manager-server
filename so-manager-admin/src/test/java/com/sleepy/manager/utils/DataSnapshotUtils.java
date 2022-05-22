@@ -31,4 +31,8 @@ public class DataSnapshotUtils {
         String json = FileUtils.readFileToString(new File(filePath), Charset.defaultCharset());
         return new Gson().fromJson(json, clazz);
     }
+
+    public static <T> T fromJson(String json, Type type) {
+        return new Gson().fromJson(json, type);
+    }
 }

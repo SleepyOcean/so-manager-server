@@ -1,5 +1,6 @@
 package com.sleepy.manager.common.utils.file;
 
+import cn.hutool.core.util.ArrayUtil;
 import com.sleepy.manager.common.config.SoServerConfig;
 import com.sleepy.manager.common.utils.DateUtils;
 import com.sleepy.manager.common.utils.StringUtils;
@@ -272,6 +273,12 @@ public class FileUtils {
         }
     }
 
+    /**
+     * 构建普通文件路径
+     *
+     * @param path
+     * @return
+     */
     public static String constructPath(String... path) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < path.length; i++) {
@@ -293,5 +300,58 @@ public class FileUtils {
             }
         }
         return sb.toString();
+    }
+
+    /**
+     * 构建 service 缓存路径下的路径。service创建的 “临时文件” 均使用该方法创建路径 <br/>
+     * service临时存储目录 -> /ManagerServerCache （!!! 临时存储目录 非必须请勿修改）
+     *
+     * @param path
+     * @return
+     */
+    public static String constructCachePath(String... path) {
+        return constructPath(ArrayUtil.insert(path, 0, "/ManagerServerCache"));
+    }
+
+    /**
+     * 构建 service 持久化数据的路径。service创建的 “持久化文件” 均使用该方法创建路径 <br/>
+     * service持久化数据存储根目录 -> /ManagerServerData （!!! 持久化数据存储根目录 非必须请勿修改）
+     *
+     * @param path
+     * @return
+     */
+    public static String constructDataPath(String... path) {
+        return constructPath(ArrayUtil.insert(path, 0, "/ManagerServerData"));
+    }
+
+    /**
+     * 检测目录是否存在，不存在则创建
+     *
+     * @param dirPath
+     * @return
+     */
+    public static boolean checkDirExistAndCreate(String dirPath) {
+        File file = new File(dirPath);
+        return checkDirExistAndCreate(file);
+    }
+
+    /**
+     * 检测目录是否存在，不存在则创建
+     *
+     * @param dir
+     * @return
+     */
+    public static boolean checkDirExistAndCreate(File dir) {
+        if (dir.exists()) {
+            return true;
+        }
+        dir.mkdirs();
+        return false;
+    }
+
+    public static File dirFile(String dirPath) {
+        File dir = new File(dirPath);
+        checkDirExistAndCreate(dir);
+        return dir;
     }
 }

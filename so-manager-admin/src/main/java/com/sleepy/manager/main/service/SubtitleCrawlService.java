@@ -15,7 +15,9 @@ public interface SubtitleCrawlService {
 
     AssembledData listSubtitles(Movie movie);
 
-    AssembledData downloadSubtitle(String movieName, String downloadPageRoute);
+    AssembledData downloadSubtitle(String movieName, String downloadPageRoute) throws Exception;
 
     AssembledData confirmSubMap(AssembledData map);
+
+    AssembledData regularSubForMovie(Movie movie);
 }

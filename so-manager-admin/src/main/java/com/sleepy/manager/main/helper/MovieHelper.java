@@ -39,21 +39,52 @@ public class MovieHelper {
 
     public static AssembledData searchBestMatch(List<AssembledData> searchList, String originalMovieFileName) {
         int bestMatchIndex = 0;
+        int maxDownloadCountIndex = 0;
+        int lastMaxDownloadCount = 0;
         int lastBestRatio = 0;
+        List<AssembledData> mulLangSubList = searchList.stream()
+                .filter(s -> s.getJSONArray("langList").stream().filter(e -> "双语".equals(e)).collect(Collectors.toList()).size() > 0)
+                .collect(Collectors.toList());
+        List<AssembledData> simpleChineseSubList = searchList.stream()
+                .filter(s -> s.getJSONArray("langList").stream().filter(e -> e.toString().contains("简体")).collect(Collectors.toList()).size() > 0)
+                .collect(Collectors.toList());
+        if (mulLangSubList.size() > 0) {
+            searchList = mulLangSubList;
+        } else if (simpleChineseSubList.size() > 0) {
+            searchList = simpleChineseSubList;
+        } else {
+            return null;
+        }
         for (int i = 0; i < searchList.size(); i++) {
             AssembledData data = searchList.get(i);
+            String downloadCount = data.getString("downloadCount");
+            if (StringUtils.isEmpty(downloadCount)) continue;
+            int downloadCountVal = 0;
+            if (downloadCount.contains("万")) {
+                downloadCountVal = (int) (Float.valueOf(downloadCount.substring(0, downloadCount.length() - 1)) * 10000F);
+            } else {
+                downloadCountVal = Integer.valueOf(downloadCount);
+            }
+            if (downloadCountVal > lastMaxDownloadCount) {
+                lastMaxDownloadCount = downloadCountVal;
+                maxDownloadCountIndex = i;
+            }
             String subTitle = data.getString("title");
+
             int ratio = FuzzySearch.partialRatio(originalMovieFileName, subTitle);
             if (ratio > lastBestRatio) {
                 lastBestRatio = ratio;
                 bestMatchIndex = i;
             }
         }
+        if (lastBestRatio < 90) {
+            return searchList.get(maxDownloadCountIndex);
+        }
         return searchList.get(bestMatchIndex);
     }
 
     public static List<Movie> loadNasMovie() throws DocumentException, IOException {
-        Set<String> moviePathList = findAllMoviePath();
+        Set<String> moviePathList = findMovieFileParentPath(NAS_MOVIE_PATH);
         List<Movie> movieList = new ArrayList<>();
 
         for (String movieDir : moviePathList) {
@@ -88,24 +119,30 @@ public class MovieHelper {
     }
 
 
-    private static Set<String> findAllMoviePath() {
+    public static Set<String> findMovieFileParentPath(List<String> searchPathList) {
+        Set<String> moviePathList = findMovieFilePath(searchPathList).stream()
+                .map(f -> new File(f).getParent()).collect(Collectors.toSet());
+        return moviePathList;
+    }
+
+    public static Set<String> findMovieFilePath(List<String> searchPathList) {
         Set<String> moviePathList = new HashSet<>();
-        for (String path : NAS_MOVIE_PATH) {
+        for (String path : searchPathList) {
             File file = new File(path);
-            findMovieRecursion(moviePathList, file);
+            findMovieFileRecursion(moviePathList, file);
         }
         return moviePathList;
     }
 
-    private static void findMovieRecursion(Set<String> moviePathList, File file) {
+    private static void findMovieFileRecursion(Set<String> moviePathList, File file) {
         if (file.isFile()) {
             if (VIDEO_FORMAT.contains(FilenameUtils.getExtension(file.getName()))) {
-                moviePathList.add(file.getParent());
+                moviePathList.add(file.getAbsolutePath());
             }
             return;
         }
         for (File f : file.listFiles()) {
-            findMovieRecursion(moviePathList, f);
+            findMovieFileRecursion(moviePathList, f);
         }
     }
 
