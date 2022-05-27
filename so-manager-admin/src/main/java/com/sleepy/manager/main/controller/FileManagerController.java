@@ -1,5 +1,6 @@
 package com.sleepy.manager.main.controller;
 
+import com.sleepy.manager.common.utils.ServletUtils;
 import com.sleepy.manager.main.common.UnionResponse;
 import com.sleepy.manager.main.service.FileManagerService;
 import com.sleepy.manager.system.domain.Gallery;
@@ -31,6 +32,7 @@ public class FileManagerController {
     @GetMapping(value = "/img/{id}", produces = MediaType.IMAGE_JPEG_VALUE)
     @ResponseBody
     public byte[] getImage(@PathVariable("id") String id) {
+        ServletUtils.getResponse().setHeader("Cache-Control", "max-age=6048000");
         return fileManagerService.getImg(id);
     }
 
@@ -60,12 +62,14 @@ public class FileManagerController {
     @GetMapping(value = "/img/movie-cover/{id}", produces = MediaType.IMAGE_JPEG_VALUE)
     @ResponseBody
     public byte[] getMovieCover(@PathVariable("id") long id) {
+        ServletUtils.getResponse().setHeader("Cache-Control", "max-age=6048000");
         return fileManagerService.getMovieCover(id);
     }
 
     @GetMapping(value = "/img/movie-fanart/{id}", produces = MediaType.IMAGE_JPEG_VALUE)
     @ResponseBody
     public byte[] getMovieFanart(@PathVariable("id") long id) {
+        ServletUtils.getResponse().setHeader("Cache-Control", "max-age=6048000");
         return fileManagerService.getMovieFanart(id);
     }
 
