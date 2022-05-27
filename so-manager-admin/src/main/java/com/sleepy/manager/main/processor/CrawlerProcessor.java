@@ -1,12 +1,13 @@
 package com.sleepy.manager.main.processor;
 
+import cn.hutool.core.util.URLUtil;
+import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.sleepy.manager.main.common.AssembledData;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,19 +32,19 @@ public class CrawlerProcessor {
     };
 
     public AssembledData analysisWebPageBaseInfo(String urlStr) {
+        AssembledData.Builder builder = new AssembledData.Builder()
+                .put("address", urlStr);
         try {
-            WebClient webClient = new WebClient();
-
+            WebClient webClient = new WebClient(BrowserVersion.CHROME);
             webClient.getOptions().setJavaScriptEnabled(true);
             webClient.getOptions().setCssEnabled(false);
+            webClient.getOptions().setUseInsecureSSL(true);
             webClient.setAjaxController(new NicelyResynchronizingAjaxController());
             webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
             webClient.getOptions().setThrowExceptionOnScriptError(false);
-            webClient.waitForBackgroundJavaScript(1000);
 
             HtmlPage htmlpage = webClient.getPage(urlStr);
-
-            String title = htmlpage.getTitleText();
+            builder.put("title", htmlpage.getTitleText());
             String head = htmlpage.getHead().asXml();
             String icoUrl = "";
             for (Pattern iconPattern : ICON_PATTERNS) {
@@ -69,19 +70,20 @@ public class CrawlerProcessor {
                 }
             }
             if (icoUrl.length() < 1) {
-                URL url = new URL(urlStr);
-                icoUrl = url.getProtocol() + "://" + url.getHost() + "/favicon.ico";
+                icoUrl = getDefaultFavIco(urlStr);
             }
-            return new AssembledData.Builder()
-                    .put("title", title)
-                    .put("icon", icoUrl)
-                    .put("address", urlStr)
+
+            return builder.put("icon", icoUrl)
                     .build();
-        } catch (IOException e) {
-            return new AssembledData.Builder()
+        } catch (Exception e) {
+            return builder.put("icon", getDefaultFavIco(urlStr))
                     .put("error", e.getMessage())
-                    .put("address", urlStr)
                     .build();
         }
+    }
+
+    private String getDefaultFavIco(String urlStr) {
+        URL url = URLUtil.url(urlStr);
+        return url.getProtocol() + "://" + url.getHost() + "/favicon.ico";
     }
 }
