@@ -10,7 +10,7 @@ import com.sleepy.manager.common.core.redis.RedisCache;
 import com.sleepy.manager.common.utils.StringUtils;
 import com.sleepy.manager.common.utils.file.FileUtils;
 import com.sleepy.manager.main.common.AssembledData;
-import com.sleepy.manager.main.helper.MovieHelper;
+import com.sleepy.manager.main.processor.MovieProcessor;
 import com.sleepy.manager.main.service.SubtitleCrawlService;
 import com.sleepy.manager.system.domain.Movie;
 import lombok.extern.slf4j.Slf4j;
@@ -62,11 +62,13 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
 
     @Autowired
     private RedisCache redisCache;
+    @Autowired
+    MovieProcessor movieProcessor;
 
     @Override
     public AssembledData rematchNasMovieSub() {
         try {
-            List<Movie> movies = MovieHelper.loadNasMovie();
+            List<Movie> movies = movieProcessor.loadNasMovie();
             movies = movies.stream().filter(m -> {
                 boolean flag = StringUtils.isNotEmpty(m.getImdbid());
                 if (!flag) {
@@ -165,7 +167,7 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
                     .collect(Collectors.toList());
 
             String originFileName = JSON.parseObject(movie.getDetail()).getString("original_filename");
-            AssembledData bestMatch = MovieHelper.searchBestMatch(detailList, originFileName);
+            AssembledData bestMatch = movieProcessor.searchBestMatch(detailList, originFileName);
 
             return new AssembledData.Builder()
                     .put("subtitles", detailList)

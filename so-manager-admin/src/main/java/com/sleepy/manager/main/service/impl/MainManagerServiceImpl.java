@@ -2,14 +2,13 @@ package com.sleepy.manager.main.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.sleepy.manager.common.core.domain.entity.SysUser;
-import com.sleepy.manager.common.exception.ServiceException;
-import com.sleepy.manager.common.utils.ExceptionUtil;
+import com.sleepy.manager.common.utils.LogUtils;
 import com.sleepy.manager.common.utils.StringUtils;
 import com.sleepy.manager.generator.util.VelocityInitializer;
 import com.sleepy.manager.main.common.AssembledData;
 import com.sleepy.manager.main.common.UnionResponse;
-import com.sleepy.manager.main.helper.MovieHelper;
 import com.sleepy.manager.main.processor.CrawlerProcessor;
+import com.sleepy.manager.main.processor.MovieProcessor;
 import com.sleepy.manager.main.service.MainManagerService;
 import com.sleepy.manager.system.domain.Movie;
 import com.sleepy.manager.system.service.ISysConfigService;
@@ -38,6 +37,9 @@ public class MainManagerServiceImpl implements MainManagerService {
 
     @Autowired
     CrawlerProcessor crawlerProcessor;
+
+    @Autowired
+    MovieProcessor movieProcessor;
 
     @Autowired
     EmailNotificationServiceImpl emailNotificationService;
@@ -131,7 +133,7 @@ public class MainManagerServiceImpl implements MainManagerService {
     @Override
     public UnionResponse syncNasMovieBase() {
         try {
-            List<Movie> movieList = MovieHelper.loadNasMovie();
+            List<Movie> movieList = movieProcessor.loadNasMovie();
             for (Movie movie : movieList) {
                 Movie res = null;
                 // 判断电影是否已存在，存在则更新，不存在则插入
@@ -145,15 +147,15 @@ public class MainManagerServiceImpl implements MainManagerService {
                     movieService.insertMovie(movie);
                 } else {
                     movie.setId(res.getId());
+                    movie.setHeadCover(null);
+                    movie.setCover(null);
                     movieService.updateMovie(movie);
                 }
             }
-            return new UnionResponse.Builder().build();
         } catch (Exception e) {
-            String msg = StringUtils.format("syncNasMovieBase failed! because Exception={}, {}", e.getClass().getName(), ExceptionUtil.getRootErrorMessage(e));
-            log.error(msg);
-            throw new ServiceException(msg);
+            LogUtils.logServiceError(e, "syncNasMovieBase failed!");
         }
+        return new UnionResponse.Builder().build();
     }
 
     private String constructUserRoutesKey(Long userId) {

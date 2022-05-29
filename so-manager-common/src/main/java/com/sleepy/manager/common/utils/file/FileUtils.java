@@ -18,6 +18,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.regex.Matcher;
 
+import static com.sleepy.manager.common.constant.ConfigConstants.SERVER_CACHE_ROOT;
+import static com.sleepy.manager.common.constant.ConfigConstants.SERVER_DATA_ROOT;
+
 /**
  * 文件处理工具类
  *
@@ -310,7 +313,7 @@ public class FileUtils {
      * @return
      */
     public static String constructCachePath(String... path) {
-        return constructPath(ArrayUtil.insert(path, 0, "/ManagerServerCache"));
+        return constructPath(ArrayUtil.insert(path, 0, SERVER_CACHE_ROOT));
     }
 
     /**
@@ -321,7 +324,7 @@ public class FileUtils {
      * @return
      */
     public static String constructDataPath(String... path) {
-        return constructPath(ArrayUtil.insert(path, 0, "/ManagerServerData"));
+        return constructPath(ArrayUtil.insert(path, 0, SERVER_DATA_ROOT));
     }
 
     /**

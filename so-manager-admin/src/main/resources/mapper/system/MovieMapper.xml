@@ -50,7 +50,7 @@
             <if test="updatedAt != null ">and updated_at = #{updatedAt}</if>
             <if test="status != null ">and status = #{status}</if>
         </where>
-        order by created_at DESC
+        order by created_at DESC, title ASC
     </select>
 
     <select id="selectMovieById" parameterType="Long" resultMap="MovieResult">

@@ -7,7 +7,7 @@ import com.sleepy.manager.common.core.page.TableDataInfo;
 import com.sleepy.manager.common.enums.BusinessType;
 import com.sleepy.manager.common.utils.poi.ExcelUtil;
 import com.sleepy.manager.main.common.AssembledData;
-import com.sleepy.manager.main.helper.MovieHelper;
+import com.sleepy.manager.main.processor.MovieProcessor;
 import com.sleepy.manager.system.domain.Movie;
 import com.sleepy.manager.system.service.IMovieService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,8 @@ import static com.sleepy.manager.common.utils.StringUtils.format;
 public class MovieController extends BaseController {
     @Autowired
     private IMovieService movieService;
-
+    @Autowired
+    private MovieProcessor movieProcessor;
     @Value("${so-manager-server.galleryPrefix}")
     private String galleryServerUrlPrefix;
 
@@ -48,7 +49,7 @@ public class MovieController extends BaseController {
         TableDataInfo data = getDataTable(list);
         data.setRows(((List<Movie>) data.getRows()).stream().map(r -> new AssembledData.Builder()
                 .putAll(r)
-                .putAll(MovieHelper.genMovieTag(r))
+                .putAll(movieProcessor.genMovieTag(r))
                 .put("coverUrl", format("{}{}{}", galleryServerUrlPrefix, "movie-cover/", r.getId()))
                 .put("fanartUrl", format("{}{}{}", galleryServerUrlPrefix, "movie-fanart/", r.getId()))
                 .put("updateDate", dateTime(r.getUpdatedAt()))

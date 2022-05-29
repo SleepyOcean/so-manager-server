@@ -5,6 +5,7 @@ import com.sleepy.manager.common.utils.file.ImageUtils;
 import com.sleepy.manager.main.common.AssembledData;
 import com.sleepy.manager.main.common.UnionResponse;
 import com.sleepy.manager.main.helper.MediaMetaDataHelper;
+import com.sleepy.manager.main.processor.MovieProcessor;
 import com.sleepy.manager.main.service.FileManagerService;
 import com.sleepy.manager.system.domain.Gallery;
 import com.sleepy.manager.system.domain.Movie;
@@ -47,6 +48,8 @@ public class FileManagerServiceImpl implements FileManagerService {
     GalleryMapper galleryMapper;
     @Autowired
     MovieMapper movieMapper;
+    @Autowired
+    MovieProcessor movieProcessor;
     @Value("${so-manager-server.galleryRoot}")
     private String galleryStorageRoot;
     @Value("${so-manager-server.galleryPrefix}")
@@ -178,8 +181,14 @@ public class FileManagerServiceImpl implements FileManagerService {
         if (ObjectUtils.isEmpty(movie)) {
             return new byte[0];
         }
-        String coverLocalPath = movie.getCover();
-        return ImageUtils.getImage(FileUtils.constructPath(movieStorageRoot, coverLocalPath));
+        String cachePath = movieProcessor.coverCache(movie.getId());
+        if (new File(cachePath).exists()) {
+            return ImageUtils.getImage(cachePath);
+        } else {
+            movieProcessor.cacheNasMovieImg(movie);
+            String coverLocalPath = movie.getCover();
+            return ImageUtils.getImage(FileUtils.constructPath(movieStorageRoot, coverLocalPath));
+        }
     }
 
     @Override
@@ -188,8 +197,14 @@ public class FileManagerServiceImpl implements FileManagerService {
         if (ObjectUtils.isEmpty(movie)) {
             return new byte[0];
         }
-        String fanartLocalPath = movie.getHeadCover();
-        return ImageUtils.getImage(FileUtils.constructPath(movieStorageRoot, fanartLocalPath));
+        String cachePath = movieProcessor.fanartCache(movie.getId());
+        if (new File(cachePath).exists()) {
+            return ImageUtils.getImage(cachePath);
+        } else {
+            movieProcessor.cacheNasMovieImg(movie);
+            String fanartLocalPath = movie.getHeadCover();
+            return ImageUtils.getImage(FileUtils.constructPath(movieStorageRoot, fanartLocalPath));
+        }
     }
 
     private void deleteImageFile(String id) {

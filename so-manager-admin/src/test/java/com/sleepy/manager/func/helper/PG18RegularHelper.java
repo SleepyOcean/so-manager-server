@@ -3,7 +3,7 @@ package com.sleepy.manager.func.helper;
 import cn.hutool.core.io.FileUtil;
 import com.sleepy.manager.common.utils.file.FileUtils;
 import com.sleepy.manager.func.utils.FakeFileUtils;
-import com.sleepy.manager.main.helper.MovieHelper;
+import com.sleepy.manager.main.processor.MovieProcessor;
 import org.junit.Test;
 
 import java.io.File;
@@ -30,7 +30,7 @@ public class PG18RegularHelper {
         String target = constructPath(TRUE_FILE_ROOT, String.valueOf(index));
 
         // Step 1. 找出所有视频
-        Set<String> allMovieFilePath = MovieHelper.findMovieFilePath(Arrays.asList(target));
+        Set<String> allMovieFilePath = new MovieProcessor().findMovieFilePath(Arrays.asList(target));
         // Step 2. 移动视频到统一目录下
         for (String path : allMovieFilePath) {
             FileUtil.move(new File(path),
