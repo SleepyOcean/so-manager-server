@@ -16,14 +16,16 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.servlet.http.HttpServletRequest;
 
+import static com.sleepy.manager.common.utils.LogUtils.logError;
+import static com.sleepy.manager.common.utils.StringUtils.format;
+
 /**
  * 全局异常处理器
- * 
+ *
  * @author
  */
 @RestControllerAdvice
-public class GlobalExceptionHandler
-{
+public class GlobalExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     /**
@@ -33,7 +35,7 @@ public class GlobalExceptionHandler
     public AjaxResult handleAccessDeniedException(AccessDeniedException e, HttpServletRequest request)
     {
         String requestURI = request.getRequestURI();
-        log.error("请求地址'{}',权限校验失败'{}'", requestURI, e.getMessage());
+        logError(e, format("请求地址'{}',权限校验失败'{}'", requestURI, e.getMessage()));
         return AjaxResult.error(HttpStatus.FORBIDDEN, "没有权限，请联系管理员授权");
     }
 
@@ -45,7 +47,7 @@ public class GlobalExceptionHandler
             HttpServletRequest request)
     {
         String requestURI = request.getRequestURI();
-        log.error("请求地址'{}',不支持'{}'请求", requestURI, e.getMethod());
+        logError(e, format("请求地址'{}',不支持'{}'请求", requestURI, e.getMethod()));
         return AjaxResult.error(e.getMessage());
     }
 
@@ -55,7 +57,7 @@ public class GlobalExceptionHandler
     @ExceptionHandler(ServiceException.class)
     public AjaxResult handleServiceException(ServiceException e, HttpServletRequest request)
     {
-        log.error(e.getMessage());
+        logError(e);
         Integer code = e.getCode();
         return StringUtils.isNotNull(code) ? AjaxResult.error(code, e.getMessage()) : AjaxResult.error(e.getMessage());
     }
@@ -67,7 +69,7 @@ public class GlobalExceptionHandler
     public AjaxResult handleRuntimeException(RuntimeException e, HttpServletRequest request)
     {
         String requestURI = request.getRequestURI();
-        log.error("请求地址'{}',发生未知异常. error[{}]", requestURI, e.getMessage());
+        logError(e, format("请求地址'{}',发生未知异常. error[{}]", requestURI, e.getMessage()));
         return AjaxResult.error(e.getMessage());
     }
 
@@ -78,7 +80,7 @@ public class GlobalExceptionHandler
     public AjaxResult handleException(Exception e, HttpServletRequest request)
     {
         String requestURI = request.getRequestURI();
-        log.error("请求地址'{}',发生系统异常. error[{}]", requestURI, e.getMessage());
+        logError(e, format("请求地址'{}',发生系统异常. error[{}]", requestURI, e.getMessage()));
         return AjaxResult.error(e.getMessage());
     }
 
@@ -88,7 +90,7 @@ public class GlobalExceptionHandler
     @ExceptionHandler(BindException.class)
     public AjaxResult handleBindException(BindException e)
     {
-        log.error(e.getMessage());
+        logError(e);
         String message = e.getAllErrors().get(0).getDefaultMessage();
         return AjaxResult.error(message);
     }
@@ -99,7 +101,7 @@ public class GlobalExceptionHandler
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public Object handleMethodArgumentNotValidException(MethodArgumentNotValidException e)
     {
-        log.error(e.getMessage());
+        logError(e);
         String message = e.getBindingResult().getFieldError().getDefaultMessage();
         return AjaxResult.error(message);
     }

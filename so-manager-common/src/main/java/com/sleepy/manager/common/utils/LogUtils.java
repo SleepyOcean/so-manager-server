@@ -1,6 +1,7 @@
 package com.sleepy.manager.common.utils;
 
 import cn.hutool.core.lang.Dict;
+import cn.hutool.core.util.ObjectUtil;
 import com.sleepy.manager.common.exception.ServiceException;
 
 import java.util.Arrays;
@@ -29,16 +30,24 @@ public class LogUtils {
     }
 
     public static void logError(Exception exception, String message) {
-        List<String> serviceStack = Arrays.stream(exception.getStackTrace())
-                .filter(e -> isMatch("com.sleepy.manager.*", e.toString()))
-                .map(e -> findAll("[A-Za-z]+\\(\\S+\\)", e.toString(), 0).get(0))
-                .collect(Collectors.toList());
-        Collections.reverse(serviceStack);
         Dict msg = Dict.create()
                 .set("msg", getOrDefault(message, ""))
                 .set("exception", exception.getClass().getName())
-                .set("exceptionMsg", getRootErrorMessage(exception))
-                .set("serviceStack", serviceStack);
+                .set("exceptionMsg", getRootErrorMessage(exception));
+
+        List<String> selfServiceStack = Arrays.stream(exception.getStackTrace())
+                .filter(e -> isMatch("com.sleepy.manager.*", e.toString()))
+                .map(e -> e.toString())
+                .collect(Collectors.toList());
+        if (selfServiceStack.size() > 0) {
+            List<String> serviceStack = selfServiceStack.stream()
+                    .map(e -> findAll("[A-Za-z]+\\(\\S+\\)", e, 0))
+                    .filter(e -> ObjectUtil.isNotEmpty(e))
+                    .map(es -> es.get(0))
+                    .collect(Collectors.toList());
+            Collections.reverse(serviceStack);
+            msg.set("serviceStack", serviceStack);
+        }
         error(toJsonStr(msg));
     }
 
