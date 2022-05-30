@@ -14,7 +14,7 @@ CREATE TABLE movie
     updated_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     status     INT          NOT NULL DEFAULT 1 COMMENT '状态, 0-Deleted, 1-Normal',
     PRIMARY KEY (id),
-    CONSTRAINT title UNIQUE (imdbId)
+    CONSTRAINT imdbId UNIQUE (imdbId)
 ) COMMENT = '电影库'
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4

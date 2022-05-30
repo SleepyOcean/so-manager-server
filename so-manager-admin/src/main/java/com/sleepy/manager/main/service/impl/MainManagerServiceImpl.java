@@ -153,7 +153,7 @@ public class MainManagerServiceImpl implements MainManagerService {
                 }
             }
         } catch (Exception e) {
-            LogUtils.logServiceError(e, "syncNasMovieBase failed!");
+            LogUtils.logError(e, "syncNasMovieBase failed!");
         }
         return new UnionResponse.Builder().build();
     }
