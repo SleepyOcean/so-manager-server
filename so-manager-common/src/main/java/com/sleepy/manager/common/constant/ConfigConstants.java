@@ -10,8 +10,8 @@ public class ConfigConstants {
     /**
      * 通用模块
      */
-    public static final String SERVER_CACHE_ROOT = "/ManagerServerCache";
-    public static final String SERVER_DATA_ROOT = "/ManagerServerData";
+    public static final String SERVER_CACHE_ROOT = "E:\\5-Cache\\4-ManagerServerCache";
+    public static final String SERVER_DATA_ROOT = "E:\\5-Cache\\5-ManagerServerData";
 
     /**
      * 缓存过期时间： 12h

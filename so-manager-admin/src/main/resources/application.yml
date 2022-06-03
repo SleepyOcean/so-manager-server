@@ -15,9 +15,9 @@ so-manager-server:
   # 验证码类型 math 数组计算 char 字符验证
   captchaType: math
   # 图床存储路径
-  galleryRoot: /ImgStorage
-  galleryPrefix: https://gallery.sleepyocean.cn/resource/img/
-  movieRoot:
+  galleryRoot: local/ImgStorage
+  galleryPrefix: http://192.168.31.133:8080/resource/img/
+  movieRoot: \\DS218plus
 
 # 开发环境配置
 server:
@@ -80,7 +80,7 @@ spring:
   # redis 配置
   redis:
     # 地址
-    host: prod.sleepyocean.cn
+    host: dev.sleepyocean.cn
     # 端口，默认为6379
     port: 6379
     # 数据库索引
