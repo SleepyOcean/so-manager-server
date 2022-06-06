@@ -22,7 +22,7 @@ import java.util.List;
  * @date 2022-06-03
  */
 @RestController
-@RequestMapping("/system/rule")
+@RequestMapping("/system/crawler-rule")
 public class CrawlerRuleController extends BaseController {
     @Autowired
     private ICrawlerRuleService crawlerRuleService;

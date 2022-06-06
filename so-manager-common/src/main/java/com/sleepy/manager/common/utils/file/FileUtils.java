@@ -331,7 +331,7 @@ public class FileUtils {
      * 检测目录是否存在，不存在则创建
      *
      * @param dirPath
-     * @return
+     * @return 存在返回 true， 不存在返回 false
      */
     public static boolean checkDirExistAndCreate(String dirPath) {
         File file = new File(dirPath);

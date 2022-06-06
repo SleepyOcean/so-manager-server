@@ -2,6 +2,7 @@ package com.sleepy.manager.main.controller;
 
 import com.sleepy.manager.common.core.domain.entity.SysUser;
 import com.sleepy.manager.main.common.UnionResponse;
+import com.sleepy.manager.main.processor.CrawlerProcessor;
 import com.sleepy.manager.main.processor.MovieProcessor;
 import com.sleepy.manager.main.service.MainManagerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,8 @@ public class MainManagerController {
     MainManagerService mainManagerService;
     @Autowired
     MovieProcessor movieProcessor;
+    @Autowired
+    CrawlerProcessor crawlerProcessor;
 
     // funds 基金模块
     @GetMapping("/funds/{strategyId}")
@@ -33,6 +36,14 @@ public class MainManagerController {
     @GetMapping("/analysis/url/base-info")
     public UnionResponse getWebPageBaseInfo(@RequestParam("url") String url) {
         return mainManagerService.getWebPageBaseInfo(url);
+    }
+
+    // 稍后阅读模块
+    @GetMapping("/analysis/url/article")
+    public UnionResponse analysisWebArticle(@RequestParam("url") String url,
+                                            @RequestParam(value = "type", required = false) String type,
+                                            @RequestParam(value = "target", required = false) String target) {
+        return new UnionResponse.Builder().status(HttpStatus.OK).data(crawlerProcessor.analysisWebArticle(url, type, target)).build();
     }
 
     // movie 电影库模块

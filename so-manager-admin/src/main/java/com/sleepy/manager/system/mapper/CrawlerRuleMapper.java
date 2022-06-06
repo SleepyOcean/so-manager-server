@@ -28,6 +28,14 @@ public interface CrawlerRuleMapper {
     List<CrawlerRule> selectCrawlerRuleList(CrawlerRule crawlerRule);
 
     /**
+     * 通过host查询爬虫规则列表
+     *
+     * @param host 目标网站host
+     * @return 爬虫规则集合
+     */
+    List<CrawlerRule> selectCrawlerRuleListByHost(String host);
+
+    /**
      * 新增爬虫规则
      *
      * @param crawlerRule 爬虫规则

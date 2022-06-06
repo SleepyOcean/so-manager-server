@@ -2,6 +2,7 @@ package com.sleepy.manager.main.controller;
 
 import com.sleepy.manager.common.utils.ServletUtils;
 import com.sleepy.manager.main.common.UnionResponse;
+import com.sleepy.manager.main.processor.CrawlerProcessor;
 import com.sleepy.manager.main.service.FileManagerService;
 import com.sleepy.manager.system.domain.Gallery;
 import com.sleepy.manager.system.domain.Movie;
@@ -27,6 +28,8 @@ public class FileManagerController {
     FileManagerService fileManagerService;
     @Autowired
     MovieMapper movieMapper;
+    @Autowired
+    CrawlerProcessor crawlerProcessor;
 
     // Image 模块
     @GetMapping(value = "/img/{id}", produces = MediaType.IMAGE_JPEG_VALUE)
@@ -77,5 +80,13 @@ public class FileManagerController {
     public UnionResponse getMovieDetail(@PathVariable("id") long id) {
         Movie movie = movieMapper.selectMovieById(id);
         return new UnionResponse.Builder().status(HttpStatus.OK).data(movie).build();
+    }
+
+    // 稍后阅读模块
+    @GetMapping(value = "/img/article/{id}", produces = MediaType.IMAGE_JPEG_VALUE)
+    @ResponseBody
+    public byte[] getThirdPartArticleImgCache(@PathVariable("id") String id) {
+        ServletUtils.getResponse().setHeader("Cache-Control", "max-age=6048000");
+        return crawlerProcessor.getThirdPartArticleImgCache(id);
     }
 }

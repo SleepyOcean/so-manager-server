@@ -52,6 +52,13 @@
         </where>
     </select>
 
+    <select id="selectCrawlerRuleListByHost" parameterType="String" resultMap="CrawlerRuleResult">
+        <include refid="selectCrawlerRuleVo"/>
+        <where>
+            <if test="host != null  and host != ''">and host = #{host}</if>
+        </where>
+    </select>
+
     <select id="selectCrawlerRuleById" parameterType="Long" resultMap="CrawlerRuleResult">
         <include refid="selectCrawlerRuleVo"/>
         where id = #{id}

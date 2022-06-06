@@ -64,6 +64,7 @@ public class MovieProcessor {
 
     @PostConstruct
     private void init() {
+        // TODO movie tag cache module
         movieTagCache = CacheUtil.newTimedCache(TIME_CACHE_TIMEOUT_MS);
         movieTagCache.schedulePrune(TIME_CACHE_TIMEOUT_MS);
     }
