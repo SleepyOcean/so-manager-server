@@ -1,5 +1,7 @@
 package com.sleepy.manager.main.processor;
 
+import cn.hutool.cache.Cache;
+import cn.hutool.cache.CacheUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.URLUtil;
 import cn.hutool.http.HttpUtil;
@@ -11,6 +13,7 @@ import com.sleepy.manager.common.utils.StringUtils;
 import com.sleepy.manager.common.utils.file.ImageUtils;
 import com.sleepy.manager.main.common.AssembledData;
 import com.sleepy.manager.main.common.HtmlElementType;
+import com.sleepy.manager.system.domain.ArticleReading;
 import com.sleepy.manager.system.domain.CrawlerRule;
 import com.sleepy.manager.system.mapper.CrawlerRuleMapper;
 import com.sleepy.manager.system.service.ISysConfigService;
@@ -29,6 +32,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -52,7 +56,10 @@ public class CrawlerProcessor {
     CrawlerRuleMapper crawlerRuleMapper;
     @Autowired
     ISysConfigService configService;
+    @Value("${so-manager-server.galleryPrefix}")
+    private String galleryServerUrlPrefix;
     WebClient webClient;
+    private Cache<String, CrawlerRule> articleCrawlerRuleCache;
 
     //设置解析网页favicon.ico的link的正则表达式
     private static final Pattern[] ICON_PATTERNS = new Pattern[]{
@@ -63,11 +70,12 @@ public class CrawlerProcessor {
             Pattern.compile("((?<=href=[\"'])[^\n\r\"']+?(?=[\"']))\"sizes=[\"'](192x192|96x96|32x32|16x16)[\"']"),
             Pattern.compile("rel=[\"']icon[\"'][^\r\n>]+?((?<=href=[\"']).+?(?=[\"']))")
     };
-    @Value("${so-manager-server.galleryPrefix}")
-    private String galleryServerUrlPrefix;
 
     @PostConstruct
     private void init() {
+        // 文章爬取规则缓存 容量20，过期时间12h
+        articleCrawlerRuleCache = CacheUtil.newLFUCache(20, 12 * 60 * 60 * 1000);
+
         webClient = new WebClient(BrowserVersion.CHROME);
         webClient.getOptions().setJavaScriptEnabled(true);
         webClient.getOptions().setCssEnabled(false);
@@ -146,15 +154,10 @@ public class CrawlerProcessor {
         }
     }
 
-    public AssembledData analysisWebArticle(String url, String type, String target) {
-        AssembledData.Builder resultBuilder = new AssembledData.Builder();
+    public ArticleReading analysisWebArticle(String url, String type, String target) {
         Document doc = simpleGet(url);
-
-        List<CrawlerRule> crawlerRules = crawlerRuleMapper.selectCrawlerRuleListByHost(URLUtil.url(url).getHost());
-        if (crawlerRules.size() != 1) {
-            logServiceError(new IllegalArgumentException("crawlerRules.size() != 1"));
-        }
-        CrawlerRule articleRule = crawlerRules.get(0);
+        String host = URLUtil.url(url).getHost();
+        CrawlerRule articleRule = articleCrawlerRule(host);
         AssembledData targetRule = new AssembledData.Builder().putAll(articleRule.getTargetRule()).build();
 
         // step 1. extract article
@@ -170,14 +173,14 @@ public class CrawlerProcessor {
             doc = webClientGet(url);
             title = extractContent(doc, type, target);
         }
-        resultBuilder.put("title", Jsoup.parse(title).text());
+        String titleString = Jsoup.parse(title).text();
         type = targetRule.getJSONObject("content").getString("type");
         target = targetRule.getJSONObject("content").getString("target");
         String content = extractContent(doc, type, target);
 
         // step 2. replace article img
         Document contentDoc = Jsoup.parse(content);
-        cacheArticleImg(contentDoc, targetRule, url);
+        List<String> articleImgList = cacheArticleImg(contentDoc, targetRule, url);
 
         // step 3. exclude Elements
         String excludeRule = articleRule.getExcludeRule();
@@ -205,11 +208,38 @@ public class CrawlerProcessor {
             }
         }
 
-        // step 4. beautify style
+        ArticleReading articleReading = new ArticleReading();
+        articleReading.setTitle(titleString);
+        articleReading.setContent(contentDoc.toString());
+        articleReading.setSource(url);
+        articleReading.setHost(host);
+        articleReading.setMd5(md5ForString(url));
+        if (ObjectUtil.isNotEmpty(contentDoc.selectFirst("p"))) {
+            articleReading.setIntro(contentDoc.selectFirst("p").text());
+        }
+        if (articleImgList.size() > 0) {
+            articleReading.setCover(articleImgList.get(0));
+        }
+
+        return articleReading;
+    }
+
+    private CrawlerRule articleCrawlerRule(String host) {
+        CrawlerRule crawlerRule = articleCrawlerRuleCache.get(host);
+        if (ObjectUtil.isEmpty(crawlerRule)) {
+            crawlerRule = crawlerRuleMapper.selectArticleCrawlerRuleListByHost(host);
+            articleCrawlerRuleCache.put(host, crawlerRule);
+        }
+        return crawlerRule;
+    }
+
+    public String beautifyArticle(ArticleReading articleReading) {
+        CrawlerRule articleRule = articleCrawlerRule(articleReading.getHost());
         String beautifyStyle = articleRule.getBeautifyRule();
         if (StringUtils.isEmpty(beautifyStyle)) {
             beautifyStyle = configService.selectConfigByKey("so.article.commonStyle");
         }
+        Document contentDoc = Jsoup.parse(articleReading.getContent());
         Document root = Jsoup.parse("<html><body></body></html>");
         root.selectFirst("body").appendElement("style").text(beautifyStyle);
         if (ObjectUtil.isNotEmpty(contentDoc.selectFirst("body"))) {
@@ -219,14 +249,12 @@ public class CrawlerProcessor {
         }
         root.selectFirst("#reading-later").prependElement("h1")
                 .attr("style", "font-weight:bold;font-size:32px;text-align:center;padding-top:20px;padding-bottom:10px;")
-                .text(resultBuilder.source().getString("title"));
-
-        resultBuilder.put("content", root.toString());
-
-        return resultBuilder.build();
+                .text(articleReading.getTitle());
+        return root.toString();
     }
 
-    private void cacheArticleImg(Document doc, AssembledData rule, String url) {
+    private List<String> cacheArticleImg(Document doc, AssembledData rule, String url) {
+        List<String> articleImgList = new ArrayList<>();
         String urlMd5 = md5ForString(url);
         String attrKey = "src";
         if (ObjectUtil.isNotEmpty(rule.getJSONObject("img"))) {
@@ -234,11 +262,12 @@ public class CrawlerProcessor {
         }
         for (Element image : doc.getElementsByTag("img")) {
             String img = image.attr(attrKey);
-            String targetDirPath = constructCachePath("article", "img", urlMd5);
+            String targetDirPath = constructArticleReadingImgCachePath(urlMd5);
             String newImgUrl = format("{}article/{}-{}", galleryServerUrlPrefix, urlMd5, md5ForString(img));
             checkDirExistAndCreate(targetDirPath);
             String targetFilePath = constructPath(targetDirPath, md5ForString(img) + ".jpg");
             if (!new File(targetFilePath).exists()) {
+                // TODO 图片获取规则待优化。考虑通过参数控制而非硬Code
                 if (img.contains("http")) {
                     downloadImg(img, targetFilePath);
                 } else if (img.contains("base64")) {
@@ -247,13 +276,21 @@ public class CrawlerProcessor {
                     } catch (IOException e) {
                         logError(e, "文章base64图片写入失败");
                     }
+                } else if (img.startsWith("//")) {
+                    downloadImg("https:" + img, targetFilePath);
                 } else if (img.startsWith("/")) {
                     downloadImg(getHostWithProtocol(url) + img, targetFilePath);
                 }
             }
             image.clearAttributes();
             image.attr("src", newImgUrl);
+            articleImgList.add(newImgUrl);
         }
+        return articleImgList;
+    }
+
+    public String constructArticleReadingImgCachePath(String urlMd5) {
+        return constructDataPath("article", "img", urlMd5);
     }
 
     private String extractContent(Document doc, String type, String target) {
@@ -323,7 +360,7 @@ public class CrawlerProcessor {
         if (md5.length != 2) {
             logServiceError(new IllegalArgumentException(id));
         }
-        String targetFilePath = constructCachePath("article", "img", md5[0], md5[1] + ".jpg");
+        String targetFilePath = constructArticleReadingImgCachePath(constructPath(md5[0], md5[1] + ".jpg"));
         return ImageUtils.getImage(targetFilePath);
     }
 }

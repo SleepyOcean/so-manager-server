@@ -33,7 +33,7 @@ public interface CrawlerRuleMapper {
      * @param host 目标网站host
      * @return 爬虫规则集合
      */
-    List<CrawlerRule> selectCrawlerRuleListByHost(String host);
+    CrawlerRule selectArticleCrawlerRuleListByHost(String host);
 
     /**
      * 新增爬虫规则

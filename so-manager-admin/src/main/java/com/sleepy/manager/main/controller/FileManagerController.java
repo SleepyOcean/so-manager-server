@@ -4,14 +4,18 @@ import com.sleepy.manager.common.utils.ServletUtils;
 import com.sleepy.manager.main.common.UnionResponse;
 import com.sleepy.manager.main.processor.CrawlerProcessor;
 import com.sleepy.manager.main.service.FileManagerService;
+import com.sleepy.manager.system.domain.ArticleReading;
 import com.sleepy.manager.system.domain.Gallery;
 import com.sleepy.manager.system.domain.Movie;
 import com.sleepy.manager.system.mapper.MovieMapper;
+import com.sleepy.manager.system.service.IArticleReadingService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @author captain1920
@@ -30,6 +34,8 @@ public class FileManagerController {
     MovieMapper movieMapper;
     @Autowired
     CrawlerProcessor crawlerProcessor;
+    @Autowired
+    IArticleReadingService articleReadingService;
 
     // Image 模块
     @GetMapping(value = "/img/{id}", produces = MediaType.IMAGE_JPEG_VALUE)
@@ -88,5 +94,17 @@ public class FileManagerController {
     public byte[] getThirdPartArticleImgCache(@PathVariable("id") String id) {
         ServletUtils.getResponse().setHeader("Cache-Control", "max-age=6048000");
         return crawlerProcessor.getThirdPartArticleImgCache(id);
+    }
+
+    @GetMapping(value = "/reading-article/{id}", produces = MediaType.TEXT_HTML_VALUE)
+    @ResponseBody
+    public String getThirdPartArticle(@PathVariable("id") String id) {
+        ArticleReading articleReading = new ArticleReading();
+        articleReading.setMd5(id);
+        List<ArticleReading> list = articleReadingService.selectArticleReadingList(articleReading);
+        if (list.size() > 0) {
+            articleReading = list.get(0);
+        }
+        return crawlerProcessor.beautifyArticle(articleReading);
     }
 }
