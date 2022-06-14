@@ -1,7 +1,10 @@
 package com.sleepy.manager.main.service.impl;
 
+import cn.hutool.cache.CacheUtil;
+import cn.hutool.cache.impl.LRUCache;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.file.FileNameUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.RuntimeUtil;
 import com.alibaba.fastjson.JSON;
 import com.gargoylesoftware.htmlunit.*;
@@ -13,7 +16,9 @@ import com.sleepy.manager.main.common.AssembledData;
 import com.sleepy.manager.main.processor.MovieProcessor;
 import com.sleepy.manager.main.service.SubtitleCrawlService;
 import com.sleepy.manager.system.domain.Movie;
+import com.sleepy.manager.system.mapper.MovieMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.compress.utils.Sets;
 import org.apache.commons.io.IOUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -29,6 +34,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.sleepy.manager.common.utils.CommonUtils.generateRandomNum;
@@ -54,7 +60,7 @@ import static com.sleepy.manager.common.utils.file.FileUtils.constructCachePath;
 @Service
 public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
 
-    public static final String ZIMUKU_HOST = "http://zmk.pw";
+    public static final String ZIMUKU_HOST = "http://zimuku.org";
     private static final String SUBS_MATCH_KEY = "subsMatchMap";
     public static final String SUBTITLE_DOWNLOAD_ROOT = "subtitle/1-SubtitleDownloadRoot";
     public static final String SUBTITLE_EXTRACT_ROOT = "subtitle/2-SubtitleExtractRoot";
@@ -64,6 +70,11 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
     private RedisCache redisCache;
     @Autowired
     MovieProcessor movieProcessor;
+    private final static Set<String> chsAndEngSet = Sets.newHashSet(".简英", "中英", "简&英", "双语");
+    private final static Set<String> chsSet = Sets.newHashSet(".zh", ".chs", "简中", "简体");
+    @Autowired
+    MovieMapper movieMapper;
+    LRUCache<Long, AssembledData> subtitlesListCache = CacheUtil.newLRUCache(10, 60 * 60 * 1000);
 
     @Override
     public AssembledData rematchNasMovieSub() {
@@ -108,7 +119,20 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
     }
 
     @Override
+    public AssembledData listSubtitles(long id) {
+        Movie movie = movieMapper.selectMovieById(id);
+        if (ObjectUtils.isEmpty(movie)) {
+            return new AssembledData.Builder().build();
+        }
+        return listSubtitles(movie);
+    }
+
+    @Override
     public AssembledData listSubtitles(Movie movie) {
+        AssembledData cache = subtitlesListCache.get(movie.getId());
+        if (ObjectUtil.isNotEmpty(cache)) {
+            return cache;
+        }
         // 过滤无需中文字幕的电影
         if (new AssembledData.Builder().putAll(movie.getDetail()).build().getString("languages").toLowerCase().contains("chinese")) {
             return new AssembledData.Builder()
@@ -124,7 +148,14 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
             webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
             webClient.getOptions().setThrowExceptionOnScriptError(false);
 
-            String searchUrl = ZIMUKU_HOST + "/search?q=" + movie.getImdbid();
+            // 获取 search token
+            webClient.getPage(ZIMUKU_HOST);
+            webClient.waitForBackgroundJavaScript(1000);
+            String homepage = webClient.getPage(ZIMUKU_HOST).getWebResponse().getContentAsString();
+            Document homeDoc = Jsoup.parse(homepage);
+            String token = homeDoc.getElementsByTag("input").get(1).attr("value");
+
+            String searchUrl = format("{}/search?q={}&vertoken={}", ZIMUKU_HOST, movie.getImdbid(), token);
             webClient.getPage(searchUrl);
             webClient.waitForBackgroundJavaScript(1000);
             HtmlPage htmlpage = webClient.getPage(searchUrl);
@@ -167,12 +198,15 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
                     .collect(Collectors.toList());
 
             String originFileName = JSON.parseObject(movie.getDetail()).getString("original_filename");
-            AssembledData bestMatch = movieProcessor.searchBestMatch(detailList, originFileName);
-
-            return new AssembledData.Builder()
+            int bestMatchIndex = movieProcessor.searchBestMatch(detailList, originFileName);
+            AssembledData bestMatch = detailList.get(bestMatchIndex);
+            detailList.remove(bestMatchIndex);
+            AssembledData subtitles = new AssembledData.Builder()
                     .put("subtitles", detailList)
                     .put("bestMatch", bestMatch)
                     .build();
+            subtitlesListCache.put(movie.getId(), subtitles);
+            return subtitles;
         } catch (Exception e) {
             logServiceError(e, format("listSubtitles failed! movieName[{}]", movie.getTitle()));
         }
@@ -180,7 +214,17 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
     }
 
     @Override
-    public AssembledData downloadSubtitle(String movieId, String downloadPageRoute) throws Exception {
+    public AssembledData downloadSubtitle(long id, String downloadPageRoute) {
+        Movie movie = movieMapper.selectMovieById(id);
+        if (ObjectUtils.isEmpty(movie)) {
+            return new AssembledData.Builder().build();
+        }
+        return downloadSubtitle(movie, downloadPageRoute);
+    }
+
+    @Override
+    public AssembledData downloadSubtitle(Movie movie, String downloadPageRoute) {
+        String movieId = movie.getId().toString();
         try (WebClient webClient = new WebClient(BrowserVersion.CHROME)) {
             webClient.getOptions().setJavaScriptEnabled(true);
             webClient.getOptions().setCssEnabled(false);
@@ -216,11 +260,29 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
                     IOUtils.readFully(contentAsStream, (int) page.getWebResponse().getContentLength()),
                     fos);
             fos.close();
-            return new AssembledData.Builder().put("downloadedPath", downloadPath).build();
+            return new AssembledData.Builder()
+                    .put("name", movie.getTitle())
+                    .put("downloadedPath", downloadPath).build();
         } catch (Exception e) {
             logServiceError(e, format("downloadSubtitle failed! movieID[{}], downloadPageRoute[{}]", movieId, downloadPageRoute));
         }
         return new AssembledData.Builder().build();
+    }
+
+    @Override
+    public AssembledData downloadBeautifiedSubtitle(long id, String downloadPageRoute) {
+        Movie movie = movieMapper.selectMovieById(id);
+        if (ObjectUtils.isEmpty(movie)) {
+            return new AssembledData.Builder().build();
+        }
+        return downloadBeautifiedSubtitle(movie, downloadPageRoute);
+    }
+
+    @Override
+    public AssembledData downloadBeautifiedSubtitle(Movie movie, String downloadPageRoute) {
+        downloadSubtitle(movie, downloadPageRoute);
+        AssembledData destData = regularSubForMovie(movie);
+        return destData;
     }
 
     /**
@@ -260,22 +322,27 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
             cleanupCompressFile(movie);
         }
         renameSub(movie);
-        moveToSubRoot(movie);
-        return new AssembledData.Builder().build();
+        String destPath = moveToSubRoot(movie);
+        return new AssembledData.Builder()
+                .put("movieName", movie.getTitle())
+                .put("destSubPath", destPath)
+                .build();
     }
 
     /**
      * 复制字幕到输出目录
      *
      * @param movie
+     * @return
      */
-    private void moveToSubRoot(Movie movie) {
+    private String moveToSubRoot(Movie movie) {
         File downloadSubFolder = new File(constructCachePath(SUBTITLE_DOWNLOAD_ROOT, movie.getId().toString()));
         if (!downloadSubFolder.exists() || downloadSubFolder.list().length < 1) {
-            return;
+            return "";
         }
         File subFolder = new File(constructCachePath(SUBTITLE_ROOT, movie.getId().toString()));
         FileUtil.move(downloadSubFolder, subFolder, true);
+        return subFolder.getAbsolutePath();
     }
 
     /**
@@ -291,6 +358,8 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
                 FileUtil.del(file);
             }
         }
+        File extractedSubFolder = new File(constructCachePath(SUBTITLE_EXTRACT_ROOT, movie.getId().toString()));
+        FileUtil.del(extractedSubFolder);
     }
 
     /**
@@ -319,12 +388,9 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
             return isSubType;
         }).collect(Collectors.toList());
         for (File listFile : filteredSubList) {
-            if (listFile.getName().toLowerCase().contains(".chs") ||
-                    listFile.getName().toLowerCase().contains(".zh") ||
-                    listFile.getName().contains(".简英") ||
-                    listFile.getName().contains("简&英") ||
-                    listFile.getName().contains("简体") ||
-                    listFile.getName().contains("双语") ||
+            String fileName = listFile.getName();
+            if (chsSet.stream().filter(f -> fileName.toLowerCase().contains(f)).collect(Collectors.toList()).size() > 0 ||
+                    chsAndEngSet.stream().filter(f -> fileName.toLowerCase().contains(f)).collect(Collectors.toList()).size() > 0 ||
                     subFolder.list().length == 1 ||
                     (filteredSubList.size() == 2 && filteredSubList.stream().filter(f -> {
                         String suffix = FileNameUtil.getSuffix(f);
@@ -381,16 +447,16 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
             FileUtil.del(subfolder);
             return;
         }
-        if (subfolder.list().length > 2 || (subfolder.list().length > 1 && !(Arrays.stream(subfolder.list()).filter(f -> {
-            String suffix = FileNameUtil.getSuffix(f);
-            return !StringUtils.isEmpty(suffix) && suffix.equalsIgnoreCase("srt");
-        }).collect(Collectors.toList()).size() == 1))) {
-            System.out.println();
-        }
 
         for (File sub : subfolder.listFiles()) {
+            String subName = sub.getName();
             String movieFileName = movie.getAddress().substring(movie.getAddress().lastIndexOf("\\") + 1);
             String newName = movieFileName.substring(0, movieFileName.lastIndexOf("."));
+            if (chsAndEngSet.stream().filter(f -> subName.toLowerCase().contains(f)).collect(Collectors.toList()).size() > 0) {
+                newName += ".chs&eng";
+            } else if (chsSet.stream().filter(f -> subName.toLowerCase().contains(f)).collect(Collectors.toList()).size() > 0) {
+                newName += ".chs";
+            }
             try {
                 FileUtil.rename(sub, newName, true, false);
             } catch (Exception e) {

@@ -13,9 +13,17 @@ public interface SubtitleCrawlService {
 
     AssembledData rematchNasMovieSub();
 
+    AssembledData listSubtitles(long id);
+
     AssembledData listSubtitles(Movie movie);
 
-    AssembledData downloadSubtitle(String movieName, String downloadPageRoute) throws Exception;
+    AssembledData downloadSubtitle(long id, String downloadPageRoute);
+
+    AssembledData downloadSubtitle(Movie movie, String downloadPageRoute);
+
+    AssembledData downloadBeautifiedSubtitle(long id, String downloadPageRoute);
+
+    AssembledData downloadBeautifiedSubtitle(Movie movie, String downloadPageRoute);
 
     AssembledData confirmSubMap(AssembledData map);
 

@@ -111,7 +111,7 @@ public class MovieProcessor {
         return new AssembledData.Builder().putAll(JSON.parseObject(jsonStr)).build();
     }
 
-    public AssembledData searchBestMatch(List<AssembledData> searchList, String originalMovieFileName) {
+    public int searchBestMatch(List<AssembledData> searchList, String originalMovieFileName) {
         int bestMatchIndex = 0;
         int maxDownloadCountIndex = 0;
         int lastMaxDownloadCount = 0;
@@ -127,7 +127,7 @@ public class MovieProcessor {
         } else if (simpleChineseSubList.size() > 0) {
             searchList = simpleChineseSubList;
         } else {
-            return null;
+            return -1;
         }
         for (int i = 0; i < searchList.size(); i++) {
             AssembledData data = searchList.get(i);
@@ -152,9 +152,9 @@ public class MovieProcessor {
             }
         }
         if (lastBestRatio < 90) {
-            return searchList.get(maxDownloadCountIndex);
+            return maxDownloadCountIndex;
         }
-        return searchList.get(bestMatchIndex);
+        return bestMatchIndex;
     }
 
     public List<Movie> loadNasMovie() throws DocumentException, IOException {
@@ -226,7 +226,7 @@ public class MovieProcessor {
             }
             // 视频信息 - 编码
             String videoCodec = fileInfo.getJSONObject("video").getString("codec");
-            dataBuilder.put("videoCodec", videoCodec);
+            dataBuilder.put("videoCodec", videoCodec.toUpperCase());
 
             // 视频信息 - 宽幅比
             String aspect = fileInfo.getJSONObject("video").getString("aspect");
@@ -242,7 +242,7 @@ public class MovieProcessor {
                         String audioCodec = audio.getString("codec");
                         int audioChannels = audio.getInteger("channels");
                         audios.add(new AssembledData.Builder()
-                                .put("codec", audioCodec)
+                                .put("codec", audioCodec.toUpperCase())
                                 .put("channels", audioChannels)
                                 .build());
                     }
@@ -252,7 +252,7 @@ public class MovieProcessor {
                     String audioCodec = audio.getString("codec");
                     int audioChannels = audio.getInteger("channels");
                     dataBuilder.put("audios", Arrays.asList(new AssembledData.Builder()
-                            .put("codec", audioCodec)
+                            .put("codec", audioCodec.toUpperCase())
                             .put("channels", audioChannels)
                             .build()));
                 }

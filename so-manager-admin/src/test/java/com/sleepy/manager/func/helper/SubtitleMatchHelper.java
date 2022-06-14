@@ -89,7 +89,7 @@ public class SubtitleMatchHelper {
                 continue;
             }
             try {
-                ziMuKuSubtitleCrawlService.downloadSubtitle(String.valueOf(movie.getId()), downloadPageRoute);
+                ziMuKuSubtitleCrawlService.downloadSubtitle(movie.getId(), downloadPageRoute);
             } catch (Exception e) {
                 System.out.println(format("下载字幕失败，{}", movie.getId()));
                 e.printStackTrace();
