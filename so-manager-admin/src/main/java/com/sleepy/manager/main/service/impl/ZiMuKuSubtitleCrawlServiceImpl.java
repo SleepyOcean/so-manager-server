@@ -450,7 +450,7 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
 
         for (File sub : subfolder.listFiles()) {
             String subName = sub.getName();
-            String movieFileName = movie.getAddress().substring(movie.getAddress().lastIndexOf("\\") + 1);
+            String movieFileName = FileNameUtil.getName(movie.getAddress());
             String newName = movieFileName.substring(0, movieFileName.lastIndexOf("."));
             if (chsAndEngSet.stream().filter(f -> subName.toLowerCase().contains(f)).collect(Collectors.toList()).size() > 0) {
                 newName += ".chs&eng";
@@ -460,7 +460,7 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
             try {
                 FileUtil.rename(sub, newName, true, false);
             } catch (Exception e) {
-                logError(e);
+                logError(e, format("sub={}, newName={}", sub, newName));
             }
         }
     }
