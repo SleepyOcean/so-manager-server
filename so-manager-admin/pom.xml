@@ -16,6 +16,12 @@
     </description>
 
     <dependencies>
+        <!-- 假数据库 -->
+        <dependency>
+            <groupId>com.github.javafaker</groupId>
+            <artifactId>javafaker</artifactId>
+            <version>1.0.2</version>
+        </dependency>
         <!-- 字符串匹配率计算 -->
         <dependency>
             <groupId>me.xdrop</groupId>
