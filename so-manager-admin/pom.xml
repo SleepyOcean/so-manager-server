@@ -40,7 +40,18 @@
             <artifactId>metadata-extractor</artifactId>
             <version>2.17.0</version>
         </dependency>
-
+        <!-- 压缩工具 -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>1.21</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.tukaani/xz -->
+        <dependency>
+            <groupId>org.tukaani</groupId>
+            <artifactId>xz</artifactId>
+            <version>1.8</version>
+        </dependency>
         <!-- 爬虫依赖 -->
         <dependency>
             <groupId>com.github.hazendaz.jsoup</groupId>

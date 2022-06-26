@@ -4,8 +4,10 @@ import cn.hutool.cache.CacheUtil;
 import cn.hutool.cache.impl.LRUCache;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.file.FileNameUtil;
+import cn.hutool.core.util.CharsetUtil;
 import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.RuntimeUtil;
+import cn.hutool.extra.compress.CompressUtil;
+import cn.hutool.extra.compress.extractor.Extractor;
 import com.alibaba.fastjson.JSON;
 import com.gargoylesoftware.htmlunit.*;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
@@ -60,7 +62,7 @@ import static com.sleepy.manager.common.utils.file.FileUtils.constructCachePath;
 @Service
 public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
 
-    public static final String ZIMUKU_HOST = "http://zimuku.org";
+    public static final String ZIMUKU_HOST = "http://zmk.pw";
     private static final String SUBS_MATCH_KEY = "subsMatchMap";
     public static final String SUBTITLE_DOWNLOAD_ROOT = "subtitle/1-SubtitleDownloadRoot";
     public static final String SUBTITLE_EXTRACT_ROOT = "subtitle/2-SubtitleExtractRoot";
@@ -231,6 +233,7 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
             webClient.setAjaxController(new NicelyResynchronizingAjaxController());
             webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
             webClient.getOptions().setThrowExceptionOnScriptError(false);
+            webClient.setRefreshHandler(new WaitingRefreshHandler());
 //            setProxy(webClient, "127.0.0.1", 41091);
 
             webClient.getPage(ZIMUKU_HOST + downloadPageRoute);
@@ -241,7 +244,7 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
             List<AssembledData> downloadLinkList = Jsoup.parse(downloadHtml).getElementsByClass("down").get(0).getElementsByTag("a").stream().map(p -> new AssembledData.Builder().put("download", p.attr("href")).put("title", p.text()).build()).collect(Collectors.toList());
             Thread.sleep(generateRandomNum(5000, 10000));
 
-            String downloadLink = ZIMUKU_HOST + downloadLinkList.get(0).getString("download");
+            String downloadLink = ZIMUKU_HOST + downloadLinkList.get(3).getString("download");
             webClient.getPage(downloadLink);
             webClient.waitForBackgroundJavaScript(generateRandomNum(6000, 9000));
             webClient.addRequestHeader("Referer", downloadLink);
@@ -398,8 +401,7 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
                     }).collect(Collectors.toList()).size() == 1)) {
                 String destDir = constructCachePath(SUBTITLE_DOWNLOAD_ROOT, movie.getId().toString());
                 String srcFile = listFile.getAbsolutePath();
-                String copyRes = RuntimeUtil.execForStr(format("cmd /c copy \"{}\" \"{}\"", srcFile, destDir));
-                log.info("copy msg\n{}", copyRes);
+                FileUtil.copy(srcFile, destDir, true);
             }
         }
     }
@@ -431,8 +433,12 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
                 checkDirExistAndCreate(extractDir);
             }
         }
-        String extractRes = RuntimeUtil.execForStr(format("7z x \"{}\" -o\"{}\"", compressFileName, extractDir));
-        log.info("extracted msg\n{}", extractRes);
+
+        Extractor extractor = CompressUtil.createExtractor(
+                CharsetUtil.defaultCharset(),
+                FileUtil.file(compressFileName));
+
+        extractor.extract(FileUtil.file(extractDir));
         return true;
     }
 
