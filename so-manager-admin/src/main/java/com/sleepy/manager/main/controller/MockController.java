@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * @author captain1920
@@ -25,7 +24,7 @@ import java.util.Locale;
 @CrossOrigin
 @RequestMapping("/mock")
 public class MockController {
-    Faker faker = new Faker(new Locale("zh-CN"));
+    Faker faker = new Faker();
 
     @GetMapping("/movie/local")
     public UnionResponse getFundsStrategyReport() {
