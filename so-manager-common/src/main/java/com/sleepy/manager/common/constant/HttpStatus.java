@@ -86,4 +86,9 @@ public class HttpStatus
      * 接口未实现
      */
     public static final int NOT_IMPLEMENTED = 501;
+
+    /**
+     * 全局异常无需log标识
+     */
+    public static final int NO_NEED_LOG = 0;
 }

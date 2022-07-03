@@ -57,8 +57,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ServiceException.class)
     public AjaxResult handleServiceException(ServiceException e, HttpServletRequest request)
     {
-        logError(e);
         Integer code = e.getCode();
+        if (null == code || code != HttpStatus.NO_NEED_LOG) {
+            logError(e);
+        } else {
+            code = HttpStatus.ERROR;
+        }
         return StringUtils.isNotNull(code) ? AjaxResult.error(code, e.getMessage()) : AjaxResult.error(e.getMessage());
     }
 

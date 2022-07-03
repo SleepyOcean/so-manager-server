@@ -40,8 +40,8 @@ server:
 # 日志配置
 logging:
   level:
+    root: error
     com.sleepy.manager: info
-    org.springframework: warn
 
 flyway:
   datasource:

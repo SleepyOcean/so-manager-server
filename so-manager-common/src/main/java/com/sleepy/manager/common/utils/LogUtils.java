@@ -2,6 +2,7 @@ package com.sleepy.manager.common.utils;
 
 import cn.hutool.core.lang.Dict;
 import cn.hutool.core.util.ObjectUtil;
+import com.sleepy.manager.common.constant.HttpStatus;
 import com.sleepy.manager.common.exception.ServiceException;
 
 import java.util.Arrays;
@@ -57,7 +58,7 @@ public class LogUtils {
 
     public static void logServiceError(Exception exception, String message) {
         logError(exception, message);
-        throw new ServiceException(getOrDefault(message, getRootErrorMessage(exception)));
+        throw new ServiceException(getOrDefault(message, getRootErrorMessage(exception)), HttpStatus.NO_NEED_LOG);
     }
 
     public static void logServiceError(Exception exception) {
