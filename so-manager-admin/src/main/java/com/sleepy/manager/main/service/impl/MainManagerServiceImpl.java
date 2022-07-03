@@ -26,12 +26,13 @@ import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.sleepy.manager.main.common.BizConst.MENU_ROUTE_CONFIG_KEY;
+
 
 @Service
 @Slf4j
 public class MainManagerServiceImpl implements MainManagerService {
 
-    private static final String USER_ROUTES_KEY_PREFIX = "so.user.routes:";
     @Autowired
     ISysConfigService configService;
 
@@ -159,6 +160,6 @@ public class MainManagerServiceImpl implements MainManagerService {
     }
 
     private String constructUserRoutesKey(Long userId) {
-        return USER_ROUTES_KEY_PREFIX + userId;
+        return MENU_ROUTE_CONFIG_KEY + ":" + userId;
     }
 }

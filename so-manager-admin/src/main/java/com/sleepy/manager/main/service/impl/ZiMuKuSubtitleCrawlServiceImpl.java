@@ -20,12 +20,13 @@ import com.sleepy.manager.common.utils.StringUtils;
 import com.sleepy.manager.common.utils.file.FileUtils;
 import com.sleepy.manager.main.adpater.WebClientAdapter;
 import com.sleepy.manager.main.common.AssembledData;
+import com.sleepy.manager.main.common.BizConst;
 import com.sleepy.manager.main.processor.MovieProcessor;
 import com.sleepy.manager.main.service.SubtitleCrawlService;
 import com.sleepy.manager.system.domain.Movie;
 import com.sleepy.manager.system.mapper.MovieMapper;
+import com.sleepy.manager.system.service.ISysConfigService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.compress.utils.Sets;
 import org.apache.commons.io.IOUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -72,8 +73,9 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
     public static final String SUBTITLE_ROOT = "subtitle/3-SubtitleForNas";
     private static final String ZIMUKU_HOST = "http://zmk.pw";
     private static final String SUBS_MATCH_KEY = "subsMatchMap";
-    private static final Set<String> chsAndEngSet = Sets.newHashSet(".简英", "中英", "简&英", "双语");
-    private static final Set<String> chsSet = Sets.newHashSet(".zh", ".chs", "简中", "简体");
+    @Autowired
+    ISysConfigService configService;
+    private Set<String> chsAndEngSet;
     LRUCache<Long, AssembledData> subtitlesListCache = CacheUtil.newLRUCache(10, 60 * 60 * 1000);
 
     @Autowired
@@ -84,6 +86,7 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
     MovieMapper movieMapper;
     @Autowired
     WebClientAdapter webClientAdapter;
+    private Set<String> chsSet;
 
     @Override
     public AssembledData rematchNasMovieSub() {
@@ -402,9 +405,7 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
         // 移动字幕文件到 download 目录
         for (File listFile : filteredSubList) {
             String fileName = listFile.getName();
-            if (chsSet.stream().filter(f -> fileName.toLowerCase().contains(f)).collect(Collectors.toList()).size() > 0 ||
-                    chsAndEngSet.stream().filter(f -> fileName.toLowerCase().contains(f)).collect(Collectors.toList()).size() > 0 ||
-                    subFolder.list().length == 1 ||
+            if (isChsSub(fileName) || isChsAndEngSub(fileName) || subFolder.list().length == 1 ||
                     (filteredSubList.size() == 2 && filteredSubList.stream().filter(f -> {
                         String suffix = FileNameUtil.getSuffix(f);
                         return !StringUtils.isEmpty(suffix) && suffix.equalsIgnoreCase("srt");
@@ -468,9 +469,9 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
             String subName = sub.getName();
             String movieFileName = FileNameUtil.getName(movie.getAddress());
             String newName = movieFileName.substring(0, movieFileName.lastIndexOf("."));
-            if (chsAndEngSet.stream().filter(f -> subName.toLowerCase().contains(f)).collect(Collectors.toList()).size() > 0) {
+            if (isChsAndEngSub(subName)) {
                 newName += ".chs&eng";
-            } else if (chsSet.stream().filter(f -> subName.toLowerCase().contains(f)).collect(Collectors.toList()).size() > 0) {
+            } else if (isChsSub(subName)) {
                 newName += ".chs";
             }
             try {
@@ -509,5 +510,26 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
             return tmp;
         }
         return null;
+    }
+
+    private boolean isChsAndEngSub(String subName) {
+        if (ObjectUtil.isEmpty(chsAndEngSet)) {
+            setFilterSet();
+        }
+        return chsAndEngSet.stream().filter(f -> subName.toLowerCase().contains(f)).collect(Collectors.toList()).size() > 0;
+    }
+
+    private boolean isChsSub(String subName) {
+        if (ObjectUtil.isEmpty(chsSet)) {
+            setFilterSet();
+        }
+        return chsSet.stream().filter(f -> subName.toLowerCase().contains(f)).collect(Collectors.toList()).size() > 0;
+    }
+
+    private void setFilterSet() {
+        String value = configService.selectConfigByKey(BizConst.SUB_FILTER_CONFIG_KEY);
+        AssembledData filter = new AssembledData.Builder().putAll(value).build();
+        chsSet = filter.getJSONArray("chs").stream().map(o -> o.toString()).collect(Collectors.toSet());
+        chsAndEngSet = filter.getJSONArray("chsAndEng").stream().map(o -> o.toString()).collect(Collectors.toSet());
     }
 }

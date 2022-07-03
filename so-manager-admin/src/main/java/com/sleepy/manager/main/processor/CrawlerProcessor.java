@@ -42,6 +42,7 @@ import static com.sleepy.manager.common.utils.LogUtils.logServiceError;
 import static com.sleepy.manager.common.utils.StringUtils.format;
 import static com.sleepy.manager.common.utils.StringUtils.md5ForString;
 import static com.sleepy.manager.common.utils.file.FileUtils.*;
+import static com.sleepy.manager.main.common.BizConst.ARTICLE_STYLE_CONFIG_KEY;
 
 /**
  * @author captain1920
@@ -203,7 +204,7 @@ public class CrawlerProcessor {
         CrawlerRule articleRule = articleCrawlerRule(articleReading.getHost());
         String beautifyStyle = articleRule.getBeautifyRule();
         if (StringUtils.isEmpty(beautifyStyle)) {
-            beautifyStyle = configService.selectConfigByKey("so.article.commonStyle");
+            beautifyStyle = configService.selectConfigByKey(ARTICLE_STYLE_CONFIG_KEY);
         }
         Document contentDoc = Jsoup.parse(articleReading.getContent());
         Document root = Jsoup.parse("<html><body></body></html>");
