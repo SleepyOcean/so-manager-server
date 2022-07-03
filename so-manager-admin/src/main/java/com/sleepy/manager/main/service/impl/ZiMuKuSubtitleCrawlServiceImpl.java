@@ -6,14 +6,19 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.file.FileNameUtil;
 import cn.hutool.core.util.CharsetUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.compress.CompressUtil;
 import cn.hutool.extra.compress.extractor.Extractor;
 import com.alibaba.fastjson.JSON;
-import com.gargoylesoftware.htmlunit.*;
+import com.gargoylesoftware.htmlunit.Page;
+import com.gargoylesoftware.htmlunit.WaitingRefreshHandler;
+import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.sleepy.manager.common.core.redis.RedisCache;
+import com.sleepy.manager.common.exception.ServiceException;
 import com.sleepy.manager.common.utils.StringUtils;
 import com.sleepy.manager.common.utils.file.FileUtils;
+import com.sleepy.manager.main.adpater.WebClientAdapter;
 import com.sleepy.manager.main.common.AssembledData;
 import com.sleepy.manager.main.processor.MovieProcessor;
 import com.sleepy.manager.main.service.SubtitleCrawlService;
@@ -62,21 +67,23 @@ import static com.sleepy.manager.common.utils.file.FileUtils.constructCachePath;
 @Service
 public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
 
-    public static final String ZIMUKU_HOST = "http://zmk.pw";
-    private static final String SUBS_MATCH_KEY = "subsMatchMap";
     public static final String SUBTITLE_DOWNLOAD_ROOT = "subtitle/1-SubtitleDownloadRoot";
     public static final String SUBTITLE_EXTRACT_ROOT = "subtitle/2-SubtitleExtractRoot";
     public static final String SUBTITLE_ROOT = "subtitle/3-SubtitleForNas";
+    private static final String ZIMUKU_HOST = "http://zmk.pw";
+    private static final String SUBS_MATCH_KEY = "subsMatchMap";
+    private static final Set<String> chsAndEngSet = Sets.newHashSet(".简英", "中英", "简&英", "双语");
+    private static final Set<String> chsSet = Sets.newHashSet(".zh", ".chs", "简中", "简体");
+    LRUCache<Long, AssembledData> subtitlesListCache = CacheUtil.newLRUCache(10, 60 * 60 * 1000);
 
     @Autowired
     private RedisCache redisCache;
     @Autowired
     MovieProcessor movieProcessor;
-    private final static Set<String> chsAndEngSet = Sets.newHashSet(".简英", "中英", "简&英", "双语");
-    private final static Set<String> chsSet = Sets.newHashSet(".zh", ".chs", "简中", "简体");
     @Autowired
     MovieMapper movieMapper;
-    LRUCache<Long, AssembledData> subtitlesListCache = CacheUtil.newLRUCache(10, 60 * 60 * 1000);
+    @Autowired
+    WebClientAdapter webClientAdapter;
 
     @Override
     public AssembledData rematchNasMovieSub() {
@@ -131,6 +138,7 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
 
     @Override
     public AssembledData listSubtitles(Movie movie) {
+        // 先查询 cache 是否存在
         AssembledData cache = subtitlesListCache.get(movie.getId());
         if (ObjectUtil.isNotEmpty(cache)) {
             return cache;
@@ -143,31 +151,22 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
                     .build();
         }
 
-        try (WebClient webClient = new WebClient(BrowserVersion.CHROME)) {
-            webClient.getOptions().setJavaScriptEnabled(true);
-            webClient.getOptions().setCssEnabled(false);
-            webClient.setAjaxController(new NicelyResynchronizingAjaxController());
-            webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
-            webClient.getOptions().setThrowExceptionOnScriptError(false);
-
+        try {
             // 获取 search token
-            webClient.getPage(ZIMUKU_HOST);
-            webClient.waitForBackgroundJavaScript(1000);
-            String homepage = webClient.getPage(ZIMUKU_HOST).getWebResponse().getContentAsString();
+            webClientAdapter.getPage(ZIMUKU_HOST, generateRandomNum(1000, 5000));
+            String homepage = webClientAdapter.getPage(ZIMUKU_HOST).getWebResponse().getContentAsString();
             Document homeDoc = Jsoup.parse(homepage);
             String token = homeDoc.getElementsByTag("input").get(1).attr("value");
 
             String searchUrl = format("{}/search?q={}&vertoken={}", ZIMUKU_HOST, movie.getImdbid(), token);
-            webClient.getPage(searchUrl);
-            webClient.waitForBackgroundJavaScript(1000);
-            HtmlPage htmlpage = webClient.getPage(searchUrl);
+            webClientAdapter.getPage(searchUrl, generateRandomNum(1000, 5000));
+            HtmlPage htmlpage = webClientAdapter.getPage(searchUrl);
             String html = htmlpage.asXml();
-            webClient.waitForBackgroundJavaScript(1000);
             Document searchPageDoc = Jsoup.parse(html);
 
             String subDetailUrl = ZIMUKU_HOST + searchPageDoc.getElementsByClass("litpic").get(0).getElementsByTag("a").get(0).attr("href");
             Thread.sleep(generateRandomNum(1000, 5000));
-            HtmlPage subDetailPage = webClient.getPage(subDetailUrl);
+            HtmlPage subDetailPage = webClientAdapter.getPage(subDetailUrl);
             String subDetailHtml = subDetailPage.asXml();
 
             List<AssembledData> detailList = Jsoup.parse(subDetailHtml).getElementsByTag("tbody").get(0).getElementsByTag("tr")
@@ -227,14 +226,8 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
     @Override
     public AssembledData downloadSubtitle(Movie movie, String downloadPageRoute) {
         String movieId = movie.getId().toString();
-        try (WebClient webClient = new WebClient(BrowserVersion.CHROME)) {
-            webClient.getOptions().setJavaScriptEnabled(true);
-            webClient.getOptions().setCssEnabled(false);
-            webClient.setAjaxController(new NicelyResynchronizingAjaxController());
-            webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
-            webClient.getOptions().setThrowExceptionOnScriptError(false);
+        try (WebClient webClient = WebClientAdapter.create()) {
             webClient.setRefreshHandler(new WaitingRefreshHandler());
-//            setProxy(webClient, "127.0.0.1", 41091);
 
             webClient.getPage(ZIMUKU_HOST + downloadPageRoute);
             webClient.waitForBackgroundJavaScript(generateRandomNum(5000, 9000));
@@ -283,9 +276,22 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
 
     @Override
     public AssembledData downloadBeautifiedSubtitle(Movie movie, String downloadPageRoute) {
-        downloadSubtitle(movie, downloadPageRoute);
-        AssembledData destData = regularSubForMovie(movie);
-        return destData;
+        String downloadedPath = downloadSubtitle(movie, downloadPageRoute).getString("downloadedPath");
+        try {
+            AssembledData destData = regularSubForMovie(movie);
+            return destData;
+        } catch (Exception e) {
+            clearSub(movie.getId());
+            logServiceError(e, StrUtil.format("download automatically failed! downloaded file detail: {}", FileNameUtil.getName(downloadedPath)));
+            return AssembledData.empty();
+        }
+    }
+
+    @Override
+    public void clearSub(Long movieId) {
+        FileUtils.delQuietly(constructCachePath(SUBTITLE_DOWNLOAD_ROOT, movieId.toString()));
+        FileUtils.delQuietly(constructCachePath(SUBTITLE_EXTRACT_ROOT, movieId.toString()));
+        FileUtils.delQuietly(constructCachePath(SUBTITLE_ROOT, movieId.toString()));
     }
 
     /**
@@ -341,10 +347,11 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
     private String moveToSubRoot(Movie movie) {
         File downloadSubFolder = new File(constructCachePath(SUBTITLE_DOWNLOAD_ROOT, movie.getId().toString()));
         if (!downloadSubFolder.exists() || downloadSubFolder.list().length < 1) {
-            return "";
+            clearSub(movie.getId());
+            throw new ServiceException("no suitable sub for automatically download");
         }
         File subFolder = new File(constructCachePath(SUBTITLE_ROOT, movie.getId().toString()));
-        FileUtil.move(downloadSubFolder, subFolder, true);
+        FileUtil.moveContent(downloadSubFolder, subFolder, true);
         return subFolder.getAbsolutePath();
     }
 
@@ -373,13 +380,15 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
     private void moveExtractedSub(Movie movie) {
         File extractedSubFolder = new File(constructCachePath(SUBTITLE_EXTRACT_ROOT, movie.getId().toString()));
         checkDirExistAndCreate(extractedSubFolder);
+        // 获取解压文件夹中包含字幕的子目录
         File subFolder = recursionSearchSub(extractedSubFolder);
         if (ObjectUtils.isEmpty(subFolder)) {
-            log.warn("not found suitable sub in movieId({})", movie.getId());
+            String extractedSubFolderDetail = Arrays.toString(extractedSubFolder.list());
+            FileUtil.del(constructCachePath(SUBTITLE_DOWNLOAD_ROOT, movie.getId().toString()));
             FileUtil.del(extractedSubFolder);
-            return;
+            throw new ServiceException(StrUtil.format("no suitable sub found, compress dir detail: {}", extractedSubFolderDetail));
         }
-        // 过滤没有srt、ass类型字幕的目录
+        // 过滤目录文件夹中非srt、ass类型字幕的文件
         List<File> filteredSubList = Arrays.stream(subFolder.listFiles()).filter(f -> {
             String suffix = FileNameUtil.getSuffix(f);
             boolean isSubType = !StringUtils.isEmpty(suffix) &&
@@ -390,6 +399,7 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
             }
             return isSubType;
         }).collect(Collectors.toList());
+        // 移动字幕文件到 download 目录
         for (File listFile : filteredSubList) {
             String fileName = listFile.getName();
             if (chsSet.stream().filter(f -> fileName.toLowerCase().contains(f)).collect(Collectors.toList()).size() > 0 ||
@@ -485,7 +495,7 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
     /**
      * 递归搜索目录下的字幕
      *
-     * @param file
+     * @param file 返回包含字幕的子目录对象
      * @return
      */
     private File recursionSearchSub(File file) {
@@ -499,16 +509,5 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
             return tmp;
         }
         return null;
-    }
-
-    /**
-     * webClient配置代理
-     *
-     * @param webClient
-     * @param host
-     * @param port
-     */
-    private void setProxy(WebClient webClient, String host, int port) {
-        webClient.getOptions().setProxyConfig(new ProxyConfig(host, port, null));
     }
 }

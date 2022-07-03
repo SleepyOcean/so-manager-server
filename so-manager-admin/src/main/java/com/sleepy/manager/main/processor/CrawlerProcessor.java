@@ -6,11 +6,11 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.URLUtil;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
-import com.gargoylesoftware.htmlunit.*;
+import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.gargoylesoftware.htmlunit.javascript.JavaScriptErrorListener;
 import com.sleepy.manager.common.utils.StringUtils;
 import com.sleepy.manager.common.utils.file.ImageUtils;
+import com.sleepy.manager.main.adpater.WebClientAdapter;
 import com.sleepy.manager.main.common.AssembledData;
 import com.sleepy.manager.main.common.HtmlElementType;
 import com.sleepy.manager.system.domain.ArticleReading;
@@ -30,7 +30,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,9 +55,10 @@ public class CrawlerProcessor {
     CrawlerRuleMapper crawlerRuleMapper;
     @Autowired
     ISysConfigService configService;
+    @Autowired
+    WebClientAdapter webClientAdapter;
     @Value("${so-manager-server.galleryPrefix}")
     private String galleryServerUrlPrefix;
-    WebClient webClient;
     private Cache<String, CrawlerRule> articleCrawlerRuleCache;
 
     //设置解析网页favicon.ico的link的正则表达式
@@ -75,47 +75,13 @@ public class CrawlerProcessor {
     private void init() {
         // 文章爬取规则缓存 容量20，过期时间12h
         articleCrawlerRuleCache = CacheUtil.newLFUCache(20, 12 * 60 * 60 * 1000);
-
-        webClient = new WebClient(BrowserVersion.CHROME);
-        webClient.getOptions().setJavaScriptEnabled(true);
-        webClient.getOptions().setCssEnabled(false);
-        webClient.getOptions().setUseInsecureSSL(true);
-        webClient.setAjaxController(new NicelyResynchronizingAjaxController());
-        webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
-        webClient.getOptions().setThrowExceptionOnScriptError(false);
-        webClient.setJavaScriptErrorListener(new JavaScriptErrorListener() {
-            @Override
-            public void scriptException(HtmlPage page, ScriptException scriptException) {
-
-            }
-
-            @Override
-            public void timeoutError(HtmlPage page, long allowedTime, long executionTime) {
-
-            }
-
-            @Override
-            public void malformedScriptURL(HtmlPage page, String url, MalformedURLException malformedURLException) {
-
-            }
-
-            @Override
-            public void loadScriptError(HtmlPage page, URL scriptUrl, Exception exception) {
-
-            }
-
-            @Override
-            public void warn(String message, String sourceName, int line, String lineSource, int lineOffset) {
-
-            }
-        });
     }
 
     public AssembledData analysisWebPageBaseInfo(String urlStr) {
         AssembledData.Builder builder = new AssembledData.Builder()
                 .put("address", urlStr);
         try {
-            HtmlPage htmlpage = webClient.getPage(urlStr);
+            HtmlPage htmlpage = webClientAdapter.getPage(urlStr);
             builder.put("title", htmlpage.getTitleText());
             String head = htmlpage.getHead().asXml();
             String icoUrl = "";
@@ -316,8 +282,7 @@ public class CrawlerProcessor {
     private Document webClientGet(String url) {
         HtmlPage htmlpage = null;
         try {
-            webClient.waitForBackgroundJavaScript(1000);
-            htmlpage = webClient.getPage(url);
+            htmlpage = webClientAdapter.getPage(url, 1000);
         } catch (Exception e) {
             logError(e, format("webClient请求url({})出错!", url));
         }
@@ -329,7 +294,7 @@ public class CrawlerProcessor {
 
     private void downloadImg(String url, String downloadPath) {
         try {
-            Page page = webClient.getPage(url);
+            Page page = webClientAdapter.getPage(url);
             InputStream contentAsStream = page.getWebResponse().getContentAsStream();
             FileOutputStream fos = new FileOutputStream(downloadPath);
             IOUtils.write(

@@ -15,6 +15,10 @@ public class AssembledData extends JSONObject {
     private AssembledData() {
     }
 
+    public static AssembledData empty() {
+        return new AssembledData();
+    }
+
     public static class Builder {
         private final AssembledData data;
 

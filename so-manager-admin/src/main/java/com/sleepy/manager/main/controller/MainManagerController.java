@@ -157,6 +157,7 @@ public class MainManagerController {
         } catch (IOException e) {
             logServiceError(e, "下载字幕失败！");
         } finally {
+            subtitleCrawlService.clearSub(movieId);
             FileUtil.del(zip);
         }
     }

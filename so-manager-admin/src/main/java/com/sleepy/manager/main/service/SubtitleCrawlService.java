@@ -28,4 +28,6 @@ public interface SubtitleCrawlService {
     AssembledData confirmSubMap(AssembledData map);
 
     AssembledData regularSubForMovie(Movie movie);
+
+    void clearSub(Long movieId);
 }

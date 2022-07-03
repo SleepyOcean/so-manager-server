@@ -1,6 +1,8 @@
 package com.sleepy.manager.common.utils.file;
 
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.StrUtil;
 import com.sleepy.manager.common.config.SoServerConfig;
 import com.sleepy.manager.common.utils.DateUtils;
 import com.sleepy.manager.common.utils.StringUtils;
@@ -20,6 +22,7 @@ import java.util.regex.Matcher;
 
 import static com.sleepy.manager.common.constant.ConfigConstants.SERVER_CACHE_ROOT;
 import static com.sleepy.manager.common.constant.ConfigConstants.SERVER_DATA_ROOT;
+import static com.sleepy.manager.common.utils.LogUtils.logError;
 
 /**
  * 文件处理工具类
@@ -131,6 +134,14 @@ public class FileUtils {
             }
         }
         return file.delete();
+    }
+
+    public static void delQuietly(String path) {
+        try {
+            FileUtil.del(path);
+        } catch (Exception e) {
+            logError(e, StrUtil.format("delete file[{}] failed!", path));
+        }
     }
 
     /**
