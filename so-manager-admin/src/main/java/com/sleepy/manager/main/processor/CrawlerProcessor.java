@@ -6,7 +6,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.URLUtil;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
-import com.gargoylesoftware.htmlunit.Page;
+import com.gargoylesoftware.htmlunit.WebResponse;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.sleepy.manager.common.utils.StringUtils;
 import com.sleepy.manager.common.utils.file.ImageUtils;
@@ -295,11 +295,11 @@ public class CrawlerProcessor {
 
     private void downloadImg(String url, String downloadPath) {
         try {
-            Page page = webClientAdapter.getPage(url);
-            InputStream contentAsStream = page.getWebResponse().getContentAsStream();
+            WebResponse response = webClientAdapter.getWebResponse(url);
+            InputStream contentAsStream = response.getContentAsStream();
             FileOutputStream fos = new FileOutputStream(downloadPath);
             IOUtils.write(
-                    IOUtils.readFully(contentAsStream, (int) page.getWebResponse().getContentLength()),
+                    IOUtils.readFully(contentAsStream, (int) response.getContentLength()),
                     fos);
             fos.close();
         } catch (IOException e) {

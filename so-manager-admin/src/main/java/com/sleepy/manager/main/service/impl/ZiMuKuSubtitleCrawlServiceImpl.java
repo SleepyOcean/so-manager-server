@@ -14,6 +14,7 @@ import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WaitingRefreshHandler;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.github.junrar.Junrar;
 import com.sleepy.manager.common.core.redis.RedisCache;
 import com.sleepy.manager.common.exception.ServiceException;
 import com.sleepy.manager.common.utils.StringUtils;
@@ -212,7 +213,7 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
             subtitlesListCache.put(movie.getId(), subtitles);
             return subtitles;
         } catch (Exception e) {
-            logServiceError(e, format("listSubtitles failed! movieName[{}]", movie.getTitle()));
+            logServiceError(e, format("listSubtitles failed! movie[name={}, ttid={}]", movie.getTitle(), movie.getImdbid()));
         }
         return new AssembledData.Builder().build();
     }
@@ -445,11 +446,19 @@ public class ZiMuKuSubtitleCrawlServiceImpl implements SubtitleCrawlService {
             }
         }
 
-        Extractor extractor = CompressUtil.createExtractor(
-                CharsetUtil.defaultCharset(),
-                FileUtil.file(compressFileName));
+        if (compressFileName.contains(".rar")) {
+            try {
+                Junrar.extract(compressFile, extractDir);
+            } catch (Exception e) {
+                logServiceError(e, StrUtil.format("解压rar({})失败！", compressFile.getName()));
+            }
+        } else {
+            Extractor extractor = CompressUtil.createExtractor(
+                    CharsetUtil.defaultCharset(),
+                    FileUtil.file(compressFileName));
 
-        extractor.extract(FileUtil.file(extractDir));
+            extractor.extract(FileUtil.file(extractDir));
+        }
         return true;
     }
 

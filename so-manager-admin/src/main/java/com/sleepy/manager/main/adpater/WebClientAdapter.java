@@ -69,6 +69,22 @@ public class WebClientAdapter {
         webClient = create();
     }
 
+    /**
+     * 解决webClient.getPage(url)返回非HtmlPage对象（例如UnexpectedPage）创建
+     *
+     * @param url
+     * @return
+     */
+    public WebResponse getWebResponse(String url) {
+        try {
+            return webClient.getPage(url).getWebResponse();
+        } catch (IOException e) {
+            String msg = StrUtil.format("webclient get web response failed! url[{}]", url);
+            error(e, msg);
+            throw new RuntimeException(msg);
+        }
+    }
+
     public HtmlPage getPage(String url) {
         try {
             return webClient.getPage(url);
