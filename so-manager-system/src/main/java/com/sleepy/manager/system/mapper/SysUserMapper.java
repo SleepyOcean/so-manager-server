@@ -1,19 +1,27 @@
 package com.sleepy.manager.system.mapper;
 
-import java.util.List;
-import org.apache.ibatis.annotations.Param;
 import com.sleepy.manager.common.core.domain.entity.SysUser;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * 用户表 数据层
- * 
+ *
  * @author
  */
-public interface SysUserMapper
-{
+public interface SysUserMapper {
+    /**
+     * 通过手机号查询用户
+     *
+     * @param phone 用户ID
+     * @return 用户对象信息
+     */
+    SysUser selectUserByPhone(String phone);
+
     /**
      * 根据条件分页查询用户列表
-     * 
+     *
      * @param sysUser 用户信息
      * @return 用户信息集合信息
      */

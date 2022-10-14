@@ -6,6 +6,7 @@ import com.sleepy.manager.common.core.domain.AjaxResult;
 import com.sleepy.manager.common.core.page.TableDataInfo;
 import com.sleepy.manager.common.core.text.Convert;
 import com.sleepy.manager.common.enums.BusinessType;
+import com.sleepy.manager.common.utils.DateUtils;
 import com.sleepy.manager.generator.domain.GenTable;
 import com.sleepy.manager.generator.domain.GenTableColumn;
 import com.sleepy.manager.generator.service.IGenTableColumnService;
@@ -13,11 +14,13 @@ import com.sleepy.manager.generator.service.IGenTableService;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.ObjectUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,8 +45,13 @@ public class GenController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('tool:gen:list')")
     @GetMapping("/list")
-    public TableDataInfo genList(GenTable genTable)
-    {
+    public TableDataInfo genList(GenTable genTable) {
+        Object beginTime = genTable.getParams().get("beginTime");
+        Object endTime = genTable.getParams().get("endTime");
+        if (!ObjectUtils.isEmpty(beginTime) && !beginTime.toString().contains("-")) {
+            genTable.getParams().put("beginTime", DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, new Date(Long.valueOf(beginTime.toString()))));
+            genTable.getParams().put("endTime", DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, new Date(Long.valueOf(endTime.toString()))));
+        }
         startPage();
         List<GenTable> list = genTableService.selectGenTableList(genTable);
         return getDataTable(list);

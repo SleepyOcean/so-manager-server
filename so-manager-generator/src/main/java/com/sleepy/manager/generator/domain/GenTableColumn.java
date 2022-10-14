@@ -1,16 +1,16 @@
 package com.sleepy.manager.generator.domain;
 
-import javax.validation.constraints.NotBlank;
 import com.sleepy.manager.common.core.domain.BaseEntity;
 import com.sleepy.manager.common.utils.StringUtils;
 
+import javax.validation.constraints.NotBlank;
+
 /**
  * 代码生成业务字段表 gen_table_column
- * 
+ *
  * @author
  */
-public class GenTableColumn extends BaseEntity
-{
+public class GenTableColumn extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     /** 编号 */

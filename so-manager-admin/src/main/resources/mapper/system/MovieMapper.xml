@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sleepy.manager.system.mapper.MovieMapper">
+
+    <resultMap type="Movie" id="MovieResult">
+        <result property="id" column="id"/>
+        <result property="imdbid" column="imdbId"/>
+        <result property="title" column="title"/>
+        <result property="year" column="year"/>
+        <result property="address" column="address"/>
+        <result property="intro" column="intro"/>
+        <result property="cover" column="cover"/>
+        <result property="headCover" column="head_cover"/>
+        <result property="detail" column="detail"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="status" column="status"/>
+    </resultMap>
+
+    <sql id="selectMovieVo">
+        select id,
+               imdbId,
+               title,
+               year,
+               address,
+               intro,
+               cover,
+               head_cover,
+               detail,
+               created_at,
+               updated_at,
+               status
+        from movie
+    </sql>
+
+    <select id="selectMovieList" parameterType="Movie" resultMap="MovieResult">
+        <include refid="selectMovieVo"/>
+        <where>
+            <if test="imdbid != null  and imdbid != ''">and imdbId = #{imdbid}</if>
+            <if test="title != null  and title != ''">and title like concat('%', #{title}, '%')</if>
+            <if test="year != null ">and year = #{year}</if>
+            <if test="address != null  and address != ''">and address = #{address}</if>
+            <if test="intro != null  and intro != ''">and intro = #{intro}</if>
+            <if test="cover != null  and cover != ''">and cover = #{cover}</if>
+            <if test="headCover != null  and headCover != ''">and head_cover = #{headCover}</if>
+            <if test="detail != null  and detail != ''">and detail = #{detail}</if>
+            <if test="createdAt != null ">and created_at = #{createdAt}</if>
+            <if test="updatedAt != null ">and updated_at = #{updatedAt}</if>
+            <if test="status != null ">and status = #{status}</if>
+        </where>
+        <choose>
+            <when test="title != null  and title != ''">order by year asc</when>
+            <otherwise>
+                order by created_at DESC, title ASC
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectMovieById" parameterType="Long" resultMap="MovieResult">
+        <include refid="selectMovieVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectMovieByImdbId" parameterType="String" resultMap="MovieResult">
+        <include refid="selectMovieVo"/>
+        where imdbid = #{imdbid}
+    </select>
+
+    <select id="selectMovieByTitle" parameterType="String" resultMap="MovieResult">
+        <include refid="selectMovieVo"/>
+        where title = #{title}
+    </select>
+
+    <insert id="insertMovie" parameterType="Movie" useGeneratedKeys="true" keyProperty="id">
+        insert into movie
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="imdbid != null">imdbId,</if>
+            <if test="title != null and title != ''">title,</if>
+            <if test="year != null">year,</if>
+            <if test="address != null and address != ''">address,</if>
+            <if test="intro != null">intro,</if>
+            <if test="cover != null and cover != ''">cover,</if>
+            <if test="headCover != null">head_cover,</if>
+            <if test="detail != null and detail != ''">detail,</if>
+            <if test="createdAt != null">created_at,</if>
+            <if test="updatedAt != null">updated_at,</if>
+            <if test="status != null">status,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="imdbid != null">#{imdbid},</if>
+            <if test="title != null and title != ''">#{title},</if>
+            <if test="year != null">#{year},</if>
+            <if test="address != null and address != ''">#{address},</if>
+            <if test="intro != null">#{intro},</if>
+            <if test="cover != null and cover != ''">#{cover},</if>
+            <if test="headCover != null">#{headCover},</if>
+            <if test="detail != null and detail != ''">#{detail},</if>
+            <if test="createdAt != null">#{createdAt},</if>
+            <if test="updatedAt != null">#{updatedAt},</if>
+            <if test="status != null">#{status},</if>
+        </trim>
+    </insert>
+
+    <update id="updateMovie" parameterType="Movie">
+        update movie
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="imdbid != null">imdbId = #{imdbid},</if>
+            <if test="title != null and title != ''">title = #{title},</if>
+            <if test="year != null">year = #{year},</if>
+            <if test="address != null and address != ''">address = #{address},</if>
+            <if test="intro != null">intro = #{intro},</if>
+            <if test="cover != null and cover != ''">cover = #{cover},</if>
+            <if test="headCover != null">head_cover = #{headCover},</if>
+            <if test="detail != null and detail != ''">detail = #{detail},</if>
+            <if test="createdAt != null">created_at = #{createdAt},</if>
+            <if test="updatedAt != null">updated_at = #{updatedAt},</if>
+            <if test="status != null">status = #{status},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteMovieById" parameterType="Long">
+        delete
+        from movie
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteMovieByIds" parameterType="String">
+        delete from movie where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

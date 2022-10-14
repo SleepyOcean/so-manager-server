@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sleepy.manager.system.mapper.ArticleReadingMapper">
+
+    <resultMap type="ArticleReading" id="ArticleReadingResult">
+        <result property="id" column="id"/>
+        <result property="md5" column="md5"/>
+        <result property="title" column="title"/>
+        <result property="host" column="host"/>
+        <result property="source" column="source"/>
+        <result property="content" column="content"/>
+        <result property="intro" column="intro"/>
+        <result property="cover" column="cover"/>
+        <result property="note" column="note"/>
+        <result property="readingStatus" column="reading_status"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="status" column="status"/>
+    </resultMap>
+
+    <sql id="selectArticleReadingVo">
+        select id,
+               md5,
+               title,
+               host,
+               source,
+               content,
+               intro,
+               cover,
+               note,
+               reading_status,
+               created_at,
+               updated_at,
+               status
+        from article_reading
+    </sql>
+
+    <select id="selectArticleReadingList" parameterType="ArticleReading" resultMap="ArticleReadingResult">
+        <include refid="selectArticleReadingVo"/>
+        <where>
+            <if test="md5 != null  and md5 != ''">and md5 = #{md5}</if>
+            <if test="title != null  and title != ''">and title like concat('%', #{title}, '%')</if>
+            <if test="host != null  and host != ''">and host = #{host}</if>
+            <if test="source != null  and source != ''">and source = #{source}</if>
+            <if test="content != null  and content != ''">and content = #{content}</if>
+            <if test="intro != null  and intro != ''">and intro = #{intro}</if>
+            <if test="cover != null  and cover != ''">and cover = #{cover}</if>
+            <if test="note != null  and note != ''">and note = #{note}</if>
+            <if test="readingStatus != null ">and reading_status = #{readingStatus}</if>
+            <if test="createdAt != null ">and created_at = #{createdAt}</if>
+            <if test="updatedAt != null ">and updated_at = #{updatedAt}</if>
+            <if test="status != null ">and status = #{status}</if>
+        </where>
+    </select>
+
+    <select id="selectArticleReadingById" parameterType="Long" resultMap="ArticleReadingResult">
+        <include refid="selectArticleReadingVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectArticleReadingByUrlMD5" parameterType="String" resultMap="ArticleReadingResult">
+        <include refid="selectArticleReadingVo"/>
+        where md5 = #{md5}
+    </select>
+
+    <insert id="insertArticleReading" parameterType="ArticleReading" useGeneratedKeys="true" keyProperty="id">
+        insert into article_reading
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="md5 != null and md5 != ''">md5,</if>
+            <if test="title != null and title != ''">title,</if>
+            <if test="host != null and host != ''">host,</if>
+            <if test="source != null and source != ''">source,</if>
+            <if test="content != null and content != ''">content,</if>
+            <if test="intro != null">intro,</if>
+            <if test="cover != null">cover,</if>
+            <if test="note != null">note,</if>
+            <if test="readingStatus != null">reading_status,</if>
+            <if test="createdAt != null">created_at,</if>
+            <if test="updatedAt != null">updated_at,</if>
+            <if test="status != null">status,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="md5 != null and md5 != ''">#{md5},</if>
+            <if test="title != null and title != ''">#{title},</if>
+            <if test="host != null and host != ''">#{host},</if>
+            <if test="source != null and source != ''">#{source},</if>
+            <if test="content != null and content != ''">#{content},</if>
+            <if test="intro != null">#{intro},</if>
+            <if test="cover != null">#{cover},</if>
+            <if test="note != null">#{note},</if>
+            <if test="readingStatus != null">#{readingStatus},</if>
+            <if test="createdAt != null">#{createdAt},</if>
+            <if test="updatedAt != null">#{updatedAt},</if>
+            <if test="status != null">#{status},</if>
+        </trim>
+    </insert>
+
+    <update id="updateArticleReading" parameterType="ArticleReading">
+        update article_reading
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="md5 != null and md5 != ''">md5 = #{md5},</if>
+            <if test="title != null and title != ''">title = #{title},</if>
+            <if test="host != null and host != ''">host = #{host},</if>
+            <if test="source != null and source != ''">source = #{source},</if>
+            <if test="content != null and content != ''">content = #{content},</if>
+            <if test="intro != null">intro = #{intro},</if>
+            <if test="cover != null">cover = #{cover},</if>
+            <if test="note != null">note = #{note},</if>
+            <if test="readingStatus != null">reading_status = #{readingStatus},</if>
+            <if test="createdAt != null">created_at = #{createdAt},</if>
+            <if test="updatedAt != null">updated_at = #{updatedAt},</if>
+            <if test="status != null">status = #{status},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteArticleReadingById" parameterType="Long">
+        delete
+        from article_reading
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteArticleReadingByIds" parameterType="String">
+        delete from article_reading where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

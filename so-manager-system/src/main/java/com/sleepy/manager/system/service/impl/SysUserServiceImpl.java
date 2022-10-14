@@ -1,15 +1,5 @@
 package com.sleepy.manager.system.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.validation.Validator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import com.sleepy.manager.common.annotation.DataScope;
 import com.sleepy.manager.common.constant.UserConstants;
 import com.sleepy.manager.common.core.domain.entity.SysRole;
@@ -22,13 +12,20 @@ import com.sleepy.manager.common.utils.spring.SpringUtils;
 import com.sleepy.manager.system.domain.SysPost;
 import com.sleepy.manager.system.domain.SysUserPost;
 import com.sleepy.manager.system.domain.SysUserRole;
-import com.sleepy.manager.system.mapper.SysPostMapper;
-import com.sleepy.manager.system.mapper.SysRoleMapper;
-import com.sleepy.manager.system.mapper.SysUserMapper;
-import com.sleepy.manager.system.mapper.SysUserPostMapper;
-import com.sleepy.manager.system.mapper.SysUserRoleMapper;
+import com.sleepy.manager.system.mapper.*;
 import com.sleepy.manager.system.service.ISysConfigService;
 import com.sleepy.manager.system.service.ISysUserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+
+import javax.validation.Validator;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 用户 业务层处理
@@ -62,8 +59,19 @@ public class SysUserServiceImpl implements ISysUserService
     protected Validator validator;
 
     /**
+     * 通过手机号查询用户
+     *
+     * @param phone 用户ID
+     * @return 用户对象信息
+     */
+    @Override
+    public SysUser selectUserByPhone(String phone) {
+        return userMapper.selectUserByPhone(phone);
+    }
+
+    /**
      * 根据条件分页查询用户列表
-     * 
+     *
      * @param user 用户信息
      * @return 用户信息集合信息
      */

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sleepy.manager.system.mapper.CrawlerRuleMapper">
+
+    <resultMap type="CrawlerRule" id="CrawlerRuleResult">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="host" column="host"/>
+        <result property="type" column="type"/>
+        <result property="targetRule" column="target_rule"/>
+        <result property="excludeRule" column="exclude_rule"/>
+        <result property="beautifyRule" column="beautify_rule"/>
+        <result property="cover" column="cover"/>
+        <result property="note" column="note"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="status" column="status"/>
+    </resultMap>
+
+    <sql id="selectCrawlerRuleVo">
+        select id,
+               name,
+               host,
+               type,
+               target_rule,
+               exclude_rule,
+               beautify_rule,
+               cover,
+               note,
+               created_at,
+               updated_at,
+               status
+        from crawler_rule
+    </sql>
+
+    <select id="selectCrawlerRuleList" parameterType="CrawlerRule" resultMap="CrawlerRuleResult">
+        <include refid="selectCrawlerRuleVo"/>
+        <where>
+            <if test="name != null  and name != ''">and name like concat('%', #{name}, '%')</if>
+            <if test="host != null  and host != ''">and host = #{host}</if>
+            <if test="type != null ">and type = #{type}</if>
+            <if test="targetRule != null  and targetRule != ''">and target_rule = #{targetRule}</if>
+            <if test="excludeRule != null  and excludeRule != ''">and exclude_rule = #{excludeRule}</if>
+            <if test="beautifyRule != null  and beautifyRule != ''">and beautify_rule = #{beautifyRule}</if>
+            <if test="cover != null  and cover != ''">and cover = #{cover}</if>
+            <if test="note != null  and note != ''">and note = #{note}</if>
+            <if test="createdAt != null ">and created_at = #{createdAt}</if>
+            <if test="updatedAt != null ">and updated_at = #{updatedAt}</if>
+            <if test="status != null ">and status = #{status}</if>
+        </where>
+    </select>
+
+    <select id="selectArticleCrawlerRuleListByHost" parameterType="String" resultMap="CrawlerRuleResult">
+        <include refid="selectCrawlerRuleVo"/>
+        where host = #{host} and type = 1
+    </select>
+
+    <select id="selectCrawlerRuleById" parameterType="Long" resultMap="CrawlerRuleResult">
+        <include refid="selectCrawlerRuleVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertCrawlerRule" parameterType="CrawlerRule" useGeneratedKeys="true" keyProperty="id">
+        insert into crawler_rule
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null and name != ''">name,</if>
+            <if test="host != null and host != ''">host,</if>
+            <if test="type != null">type,</if>
+            <if test="targetRule != null and targetRule != ''">target_rule,</if>
+            <if test="excludeRule != null">exclude_rule,</if>
+            <if test="beautifyRule != null">beautify_rule,</if>
+            <if test="cover != null and cover != ''">cover,</if>
+            <if test="note != null">note,</if>
+            <if test="createdAt != null">created_at,</if>
+            <if test="updatedAt != null">updated_at,</if>
+            <if test="status != null">status,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="host != null and host != ''">#{host},</if>
+            <if test="type != null">#{type},</if>
+            <if test="targetRule != null and targetRule != ''">#{targetRule},</if>
+            <if test="excludeRule != null">#{excludeRule},</if>
+            <if test="beautifyRule != null">#{beautifyRule},</if>
+            <if test="cover != null and cover != ''">#{cover},</if>
+            <if test="note != null">#{note},</if>
+            <if test="createdAt != null">#{createdAt},</if>
+            <if test="updatedAt != null">#{updatedAt},</if>
+            <if test="status != null">#{status},</if>
+        </trim>
+    </insert>
+
+    <update id="updateCrawlerRule" parameterType="CrawlerRule">
+        update crawler_rule
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="host != null and host != ''">host = #{host},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="targetRule != null and targetRule != ''">target_rule = #{targetRule},</if>
+            <if test="excludeRule != null">exclude_rule = #{excludeRule},</if>
+            <if test="beautifyRule != null">beautify_rule = #{beautifyRule},</if>
+            <if test="cover != null and cover != ''">cover = #{cover},</if>
+            <if test="note != null">note = #{note},</if>
+            <if test="createdAt != null">created_at = #{createdAt},</if>
+            <if test="updatedAt != null">updated_at = #{updatedAt},</if>
+            <if test="status != null">status = #{status},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCrawlerRuleById" parameterType="Long">
+        delete
+        from crawler_rule
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteCrawlerRuleByIds" parameterType="String">
+        delete from crawler_rule where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

@@ -6,9 +6,9 @@ spring:
         druid:
             # 主库数据源
             master:
-                url: jdbc:mysql://prod.sleepyocean.cn:3306/so?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
-                username: captain
-                password: tmp123
+              url: jdbc:mysql://dev.sleepyocean.cn:3306/so?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&allowPublicKeyRetrieval=true&serverTimezone=GMT%2B8
+              username: root
+              password: 123456
             # 从库数据源
             slave:
                 # 从数据源开关/默认关闭
@@ -32,7 +32,7 @@ spring:
             maxEvictableIdleTimeMillis: 900000
             # 配置检测连接是否有效
             validationQuery: SELECT 1 FROM DUAL
-            testWhileIdle: true
+            testWhileIdle: false
             testOnBorrow: false
             testOnReturn: false
             webStatFilter: 

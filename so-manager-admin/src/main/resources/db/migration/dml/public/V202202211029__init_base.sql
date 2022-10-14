@@ -296,43 +296,76 @@ insert into sys_dict_data values(13, 2,  '否',       'N',       'sys_yes_no',  
 insert into sys_dict_data values(14, 1,  '通知',     '1',       'sys_notice_type',     '',   'warning', 'Y', '0', 'admin', sysdate(), '', null, '通知');
 insert into sys_dict_data values(15, 2,  '公告',     '2',       'sys_notice_type',     '',   'success', 'N', '0', 'admin', sysdate(), '', null, '公告');
 insert into sys_dict_data values(16, 1,  '正常',     '0',       'sys_notice_status',   '',   'primary', 'Y', '0', 'admin', sysdate(), '', null, '正常状态');
-insert into sys_dict_data values(17, 2,  '关闭',     '1',       'sys_notice_status',   '',   'danger',  'N', '0', 'admin', sysdate(), '', null, '关闭状态');
-insert into sys_dict_data values(18, 1,  '新增',     '1',       'sys_oper_type',       '',   'info',    'N', '0', 'admin', sysdate(), '', null, '新增操作');
-insert into sys_dict_data values(19, 2,  '修改',     '2',       'sys_oper_type',       '',   'info',    'N', '0', 'admin', sysdate(), '', null, '修改操作');
-insert into sys_dict_data values(20, 3,  '删除',     '3',       'sys_oper_type',       '',   'danger',  'N', '0', 'admin', sysdate(), '', null, '删除操作');
-insert into sys_dict_data values(21, 4,  '授权',     '4',       'sys_oper_type',       '',   'primary', 'N', '0', 'admin', sysdate(), '', null, '授权操作');
-insert into sys_dict_data values(22, 5,  '导出',     '5',       'sys_oper_type',       '',   'warning', 'N', '0', 'admin', sysdate(), '', null, '导出操作');
-insert into sys_dict_data values(23, 6,  '导入',     '6',       'sys_oper_type',       '',   'warning', 'N', '0', 'admin', sysdate(), '', null, '导入操作');
-insert into sys_dict_data values(24, 7,  '强退',     '7',       'sys_oper_type',       '',   'danger',  'N', '0', 'admin', sysdate(), '', null, '强退操作');
-insert into sys_dict_data values(25, 8,  '生成代码', '8',       'sys_oper_type',       '',   'warning', 'N', '0', 'admin', sysdate(), '', null, '生成操作');
-insert into sys_dict_data values(26, 9,  '清空数据', '9',       'sys_oper_type',       '',   'danger',  'N', '0', 'admin', sysdate(), '', null, '清空操作');
-insert into sys_dict_data values(27, 1,  '成功',     '0',       'sys_common_status',   '',   'primary', 'N', '0', 'admin', sysdate(), '', null, '正常状态');
-insert into sys_dict_data values(28, 2,  '失败',     '1',       'sys_common_status',   '',   'danger',  'N', '0', 'admin', sysdate(), '', null, '停用状态');
+insert into sys_dict_data
+values (17, 2, '关闭', '1', 'sys_notice_status', '', 'danger', 'N', '0', 'admin', sysdate(), '', null, '关闭状态');
+insert into sys_dict_data
+values (18, 1, '新增', '1', 'sys_oper_type', '', 'info', 'N', '0', 'admin', sysdate(), '', null, '新增操作');
+insert into sys_dict_data
+values (19, 2, '修改', '2', 'sys_oper_type', '', 'info', 'N', '0', 'admin', sysdate(), '', null, '修改操作');
+insert into sys_dict_data
+values (20, 3, '删除', '3', 'sys_oper_type', '', 'danger', 'N', '0', 'admin', sysdate(), '', null, '删除操作');
+insert into sys_dict_data
+values (21, 4, '授权', '4', 'sys_oper_type', '', 'primary', 'N', '0', 'admin', sysdate(), '', null, '授权操作');
+insert into sys_dict_data
+values (22, 5, '导出', '5', 'sys_oper_type', '', 'warning', 'N', '0', 'admin', sysdate(), '', null, '导出操作');
+insert into sys_dict_data
+values (23, 6, '导入', '6', 'sys_oper_type', '', 'warning', 'N', '0', 'admin', sysdate(), '', null, '导入操作');
+insert into sys_dict_data
+values (24, 7, '强退', '7', 'sys_oper_type', '', 'danger', 'N', '0', 'admin', sysdate(), '', null, '强退操作');
+insert into sys_dict_data
+values (25, 8, '生成代码', '8', 'sys_oper_type', '', 'warning', 'N', '0', 'admin', sysdate(), '', null, '生成操作');
+insert into sys_dict_data
+values (26, 9, '清空数据', '9', 'sys_oper_type', '', 'danger', 'N', '0', 'admin', sysdate(), '', null, '清空操作');
+insert into sys_dict_data
+values (27, 1, '成功', '0', 'sys_common_status', '', 'primary', 'N', '0', 'admin', sysdate(), '', null, '正常状态');
+insert into sys_dict_data
+values (28, 2, '失败', '1', 'sys_common_status', '', 'danger', 'N', '0', 'admin', sysdate(), '', null, '停用状态');
 
 
 -- ----------------------------
 -- 初始化-参数配置表数据
 -- ----------------------------
-insert into sys_config values(1, '主框架页-默认皮肤样式名称',     'sys.index.skinName',            'skin-blue',     'Y', 'admin', sysdate(), '', null, '蓝色 skin-blue、绿色 skin-green、紫色 skin-purple、红色 skin-red、黄色 skin-yellow' );
-insert into sys_config values(2, '用户管理-账号初始密码',         'sys.user.initPassword',         '123456',        'Y', 'admin', sysdate(), '', null, '初始化密码 123456' );
-insert into sys_config values(3, '主框架页-侧边栏主题',           'sys.index.sideTheme',           'theme-dark',    'Y', 'admin', sysdate(), '', null, '深色主题theme-dark，浅色主题theme-light' );
-insert into sys_config values(4, '账号自助-验证码开关',           'sys.account.captchaOnOff',      'true',          'Y', 'admin', sysdate(), '', null, '是否开启验证码功能（true开启，false关闭）');
-insert into sys_config values(5, '账号自助-是否开启用户注册功能', 'sys.account.registerUser',      'false',         'Y', 'admin', sysdate(), '', null, '是否开启注册用户功能（true开启，false关闭）');
+insert into sys_config
+values (1, '主框架页-默认皮肤样式名称', 'sys.index.skinName', 'skin-blue', 'Y', 'admin', sysdate(), '', null,
+        '蓝色 skin-blue、绿色 skin-green、紫色 skin-purple、红色 skin-red、黄色 skin-yellow');
+insert into sys_config
+values (2, '用户管理-账号初始密码', 'sys.user.initPassword', '123456', 'Y', 'admin', sysdate(), '', null, '初始化密码 123456');
+insert into sys_config
+values (3, '主框架页-侧边栏主题', 'sys.index.sideTheme', 'theme-dark', 'Y', 'admin', sysdate(), '', null,
+        '深色主题theme-dark，浅色主题theme-light');
+insert into sys_config
+values (4, '账号自助-验证码开关', 'sys.account.captchaOnOff', 'false', 'Y', 'admin', sysdate(), '', null,
+        '是否开启验证码功能（true开启，false关闭）');
+insert into sys_config
+values (5, '账号自助-是否开启用户注册功能', 'sys.account.registerUser', 'false', 'Y', 'admin', sysdate(), '', null,
+        '是否开启注册用户功能（true开启，false关闭）');
+insert into sys_config
+values (100, '用户菜单配置:1', 'so.user.routes:1',
+        '[{"name":"dashboard","path":"/dashboard","component":"basic","children":[{"name":"dashboard_analysis","path":"/dashboard/analysis","component":"self","meta":{"title":"分析页","requiresAuth":true,"icon":"icon-park-outline:analysis"}},{"name":"dashboard_workbench","path":"/dashboard/workbench","component":"self","meta":{"title":"工作台","requiresAuth":true,"permissions":["super","admin"],"icon":"icon-park-outline:workbench"}}],"meta":{"title":"仪表盘","icon":"carbon:dashboard","order":1}},{"name":"knowledge","path":"/knowledge","component":"basic","children":[{"name":"knowledge_blog","path":"/knowledge/blog","component":"self","meta":{"title":"博客库","requiresAuth":true,"permissions":["super","admin"]}},{"name":"knowledge_notion","path":"/knowledge/notion","component":"self","meta":{"title":"知识库","requiresAuth":true,"permissions":["super","admin"]}}],"meta":{"title":"知识库","icon":"carbon:ai-status-complete","order":2}},{"name":"collection","path":"/collection","component":"basic","children":[{"name":"collection_cinema","path":"/collection/cinema","component":"self","meta":{"title":"影视馆","requiresAuth":true,"permissions":["super","admin"]}},{"name":"collection_music","path":"/collection/music","component":"self","meta":{"title":"音乐馆","requiresAuth":true,"permissions":["super","admin"]}},{"name":"collection_library","path":"/collection/library","component":"self","meta":{"title":"藏书馆","requiresAuth":true,"permissions":["super","admin"]}},{"name":"collection_picture","path":"/collection/picture","component":"self","meta":{"title":"图像馆","requiresAuth":true,"permissions":["super","admin"]}}],"meta":{"title":"收藏库","icon":"carbon:box","order":3}},{"name":"tool-box","path":"/tool-box","component":"basic","children":[{"name":"tool-box_image-bed","path":"/tool-box/image-bed","component":"self","meta":{"title":"图床管理","requiresAuth":true,"permissions":["super","admin"]}},{"name":"tool-box_cloud-file","path":"/tool-box/cloud-file","component":"self","meta":{"title":"网盘管理","requiresAuth":true,"permissions":["super","admin"]}},{"name":"tool-box_bookmark","path":"/tool-box/bookmark","component":"self","meta":{"title":"书签管理","requiresAuth":true,"permissions":["super","admin"]}},{"name":"tool-box_project-manager","path":"/tool-box/project-manager","component":"self","meta":{"title":"项目管理","requiresAuth":true,"permissions":["super","admin"]}}],"meta":{"title":"工具箱","icon":"carbon:tool-box","order":4}},{"name":"devops-box","path":"/devops-box","component":"basic","children":[{"name":"devops-box_code-generation","path":"/devops-box/code-generation","component":"self","meta":{"title":"代码生成","requiresAuth":true,"permissions":["super","admin"]}}],"meta":{"title":"开发盒","icon":"la:dev","order":5}},{"name":"data-box","path":"/data-box","component":"basic","children":[{"name":"data-box_bookmark","path":"/data-box/bookmark","component":"self","meta":{"title":"书签表","requiresAuth":true,"permissions":["super","admin"]}}],"meta":{"title":"数据库","icon":"carbon:data-view-alt","order":6}}]',
+        'Y', 'admin', sysdate(), '', null,
+        '默认用户的菜单配置');
 
 
 -- ----------------------------
 -- 初始化-定时任务调度表数据
 -- ----------------------------
-insert into sys_job values(1, '系统默认（无参）', 'DEFAULT', 'ryTask.ryNoParams',        '0/10 * * * * ?', '3', '1', '1', 'admin', sysdate(), '', null, '');
-insert into sys_job values(2, '系统默认（有参）', 'DEFAULT', 'ryTask.ryParams(\'ry\')',  '0/15 * * * * ?', '3', '1', '1', 'admin', sysdate(), '', null, '');
-insert into sys_job values(3, '系统默认（多参）', 'DEFAULT', 'ryTask.ryMultipleParams(\'ry\', true, 2000L, 316.50D, 100)',  '0/20 * * * * ?', '3', '1', '1', 'admin', sysdate(), '', null, '');
+insert into sys_job
+values (1, '系统默认（无参）', 'DEFAULT', 'ryTask.ryNoParams', '0/10 * * * * ?', '3', '1', '1', 'admin', sysdate(), '', null,
+        '');
+insert into sys_job
+values (2, '系统默认（有参）', 'DEFAULT', 'ryTask.ryParams(\'ry\')', '0/15 * * * * ?', '3', '1', '1', 'admin', sysdate(), '',
+        null, '');
+insert into sys_job
+values (3, '系统默认（多参）', 'DEFAULT', 'ryTask.ryMultipleParams(\'ry\', true, 2000L, 316.50D, 100)', '0/20 * * * * ?', '3',
+        '1', '1', 'admin', sysdate(), '', null, '');
 
 
 
 -- ----------------------------
 -- 初始化-通知公告表数据
 -- ----------------------------
-insert into sys_notice values('1', '温馨提醒：2018-07-01 SO新版本发布啦', '2', '新版本内容', '0', 'admin', sysdate(), '', null, '管理员');
+insert into sys_notice
+values ('1', '温馨提醒：2018-07-01 SO新版本发布啦', '2', '新版本内容', '0', 'admin', sysdate(), '', null, '管理员');
 insert into sys_notice values('2', '维护通知：2018-07-01 SO系统凌晨维护', '1', '维护内容',   '0', 'admin', sysdate(), '', null, '管理员');
 
 
